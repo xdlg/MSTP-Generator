@@ -7,4 +7,6 @@ digraph "blur.c"
   Node2 [label="blur.h",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$blur_8h.html",tooltip="Fast box blur. "];
   Node2 -> Node3 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
   Node3 [label="stdint.h",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled"];
+  Node1 -> Node4 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="stdio.h",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled"];
 }

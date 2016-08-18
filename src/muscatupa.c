@@ -27,11 +27,11 @@
 #define PATH_TO_GIF		"0.gif"
 
 #define N_SCALES 		4 	/**< Number of Turing patterns/scales */
-#define W				500 /**< Image width */
-#define H				500	/**< Image height */
+#define W				300 /**< Image width */
+#define H				300	/**< Image height */
 #define N_STEPS 		200 /**< Number of timesteps to generate */
 
-#define ANIMATE 		0 	/**< 0 to save only the last generated picture */
+#define ANIMATE 		1 	/**< 0 to save only the last generated picture */
 
 /******************************************************************************
  * Types and structures
@@ -41,8 +41,8 @@
 */
 struct pattern
 {
-	uint16_t act_r; /**< Activator radius */
-	uint16_t inh_r; /**< Inhibitor radius */
+	uint32_t act_r; /**< Activator radius */
+	uint32_t inh_r; /**< Inhibitor radius */
 	float sa;		/**< Small amount */
 };
 
@@ -52,22 +52,22 @@ struct pattern
 /** 
 * Parameters of the Turing patterns.
 */
-const uint16_t act_r_all[N_SCALES] = {100, 25, 10, 5};	 /**< Activator radii */
-const uint16_t inh_r_all[N_SCALES] = {200, 50, 20, 10};	 /**< Inhibitor radii */
+const uint32_t act_r_all[N_SCALES] = {10, 25, 10, 5};	 /**< Activator radii */
+const uint32_t inh_r_all[N_SCALES] = {20, 50, 20, 10};	 /**< Inhibitor radii */
 const float sa_all[N_SCALES] = {0.05, 0.04, 0.03, 0.02}; /**< Small amounts */
 
 /******************************************************************************
  * Private functions
  *****************************************************************************/
-void init_image(uint16_t w, uint16_t h, float s[][h]);
+void init_image(uint32_t w, uint32_t h, float s[][h]);
 void build_colormap(uint32_t depth, int32_t *colors);
-void step(struct pattern *p, uint8_t n, uint16_t w, uint16_t h, float im[][h]);
-void compute_var(uint8_t n, uint16_t w, uint16_t h, float act[][w][h], 
+void step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, float im[][h]);
+void compute_var(uint32_t n, uint32_t w, uint32_t h, float act[][w][h], 
 	float inh[][w][h], float var[][w][h], float *lst_var);
-void update_image(struct pattern *p, uint16_t w, uint16_t h, float im[][h],
+void update_image(struct pattern *p, uint32_t w, uint32_t h, float im[][h],
 	float act[][h], float inh[][h]);
-void normalize_image(uint16_t w, uint16_t h, float s[][h]);
-void convert_image(uint16_t w, uint16_t h, float im_float[][h], 
+void normalize_image(uint32_t w, uint32_t h, float s[][h]);
+void convert_image(uint32_t w, uint32_t h, float im_float[][h], 
 	uint8_t im_bytes[][h]);
 uint32_t write_gif(unsigned char *gif_image, uint32_t n_bytes);
 
@@ -88,7 +88,7 @@ int main(void)
 	float im_float[W][H];		// Image with values E[-1; 1]
 	uint8_t im_bytes[W][H];		// Image with values E[0; 255]
 	
-	uint16_t i;
+	uint32_t i;
 	
 	init_image(W, H, im_float);
 	build_colormap(COLOR_DEPTH, colors);
@@ -149,9 +149,9 @@ int main(void)
  * @param h height of the image
  * @param s source image in a 2D array (overwritten)
  *****************************************************************************/
-void init_image(uint16_t w, uint16_t h, float s[][h])
+void init_image(uint32_t w, uint32_t h, float s[][h])
 {
-	uint16_t x, y;
+	uint32_t x, y;
 	
 	srand(time(NULL));
 	for (x = 0; x < w; x++)
@@ -194,14 +194,14 @@ void build_colormap(uint32_t depth, int32_t *colors)
  * @param h height of the image
  * @param im image (overwritten)
  *****************************************************************************/
-void step(struct pattern *p, uint8_t n, uint16_t w, uint16_t h, float im[][h])
+void step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, float im[][h])
 {
 	float act[n][w][h];	// Activator arrays
 	float inh[n][w][w];	// Inhibitor arrays
 	float var[n][w][h];	// Variation arrays
 	float lst_var[n];	// Least variation for each scale
 	float dummy;
-	uint8_t i, min;
+	uint32_t i, min;
 	
 	// Generate the activator and inhibitor arrays (try with multiple passes)
 	for (i=0; i<n; i++)
@@ -235,12 +235,12 @@ void step(struct pattern *p, uint8_t n, uint16_t w, uint16_t h, float im[][h])
  * @param var variation arrays (overwritten)
  * @param lst_var least variations for all scales (overwritten)
  *****************************************************************************/
-void compute_var(uint8_t n, uint16_t w, uint16_t h, float act[][w][h], 
+void compute_var(uint32_t n, uint32_t w, uint32_t h, float act[][w][h], 
 	float inh[][w][h], float var[][w][h], float *lst_var)
 {
 	float min;
-	uint16_t x, y;
-	uint8_t i;
+	uint32_t x, y;
+	uint32_t i;
 	
 	for (i=0; i<n; i++)
 	{
@@ -271,10 +271,10 @@ void compute_var(uint8_t n, uint16_t w, uint16_t h, float act[][w][h],
  * @param act activator array
  * @param inh inhibitor array
  *****************************************************************************/
-void update_image(struct pattern *p, uint16_t w, uint16_t h, float im[][h],
+void update_image(struct pattern *p, uint32_t w, uint32_t h, float im[][h],
 	float act[][h], float inh[][h])
 {
-	uint16_t x, y;
+	uint32_t x, y;
 	
 	for (x = 0; x < w; x++)
 	{
@@ -291,10 +291,10 @@ void update_image(struct pattern *p, uint16_t w, uint16_t h, float im[][h],
  * @param h height of the image
  * @param im image (overwritten)
  *****************************************************************************/
-void normalize_image(uint16_t w, uint16_t h, float im[][h])
+void normalize_image(uint32_t w, uint32_t h, float im[][h])
 {
 	float max, min, range;
-	uint16_t x, y;
+	uint32_t x, y;
 	
 	max_array(w*h, (float *)im, &max);
 	min_array(w*h, (float *)im, &min);
@@ -318,10 +318,10 @@ void normalize_image(uint16_t w, uint16_t h, float im[][h])
  * @param im_float input image 
  * @param im_bytes output image (overwritten)
  *****************************************************************************/
-void convert_image(uint16_t w, uint16_t h, float im_float[][h], 
+void convert_image(uint32_t w, uint32_t h, float im_float[][h], 
 	uint8_t im_bytes[][h])
 {
-	uint16_t x, y;
+	uint32_t x, y;
 	
 	for (x = 0; x < w; x++)
 	{

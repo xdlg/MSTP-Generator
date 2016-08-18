@@ -4,8 +4,8 @@ CFLAGS = -Wall
 OUT = 0.gif
 
 all:
-	gcc $(CFLAGS) -o $(SRC)$(PROJECT) $(SRC)$(PROJECT).c $(SRC)utils.c $(SRC)blur.c
+	gcc $(CFLAGS) -o $(SRC)$(PROJECT).out $(SRC)$(PROJECT).c $(SRC)utils.c $(SRC)blur.c
 
 run:
-	./$(SRC)$(PROJECT)
+	./$(SRC)$(PROJECT).out
 	eog $(OUT)
