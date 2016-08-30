@@ -11,11 +11,6 @@ Some developers have already put their implementation online, see for instance [
 
 The source code is on [GitHub](https://github.com/xdlg/Muscatupa). It uses the [gifsave89 library](http://www.forkosh.com/gifsave89.html) to generate gifs, static or animated. I just took that one because the API is really simple, but I might pick another library later. The documentation is generated with Doxygen. To understand the algorithm, **everything** that you need to know is explained in the abovementioned [blog post](https://softologyblog.wordpress.com/2011/07/05/multi-scale-turing-patterns/).
 
-As of today, the program runs and it's quite fast, so I got that going for me, which is nice. Generated animated gifs can get huge, though. Three issues that I'm already aware of, and that I'm going to work on:
-1. When increasing the image size, the number of patterns, or the size of certain variables, there's always a moment when the program crashes with a "Segmentation fault". So I'm doing something wrong, maybe not freeing memory when I should.
-2. The patterns seem to stabilize after a while, but maybe I just have to play with the patterns' parameters.
-3. It works only with square images, perhaps that's a feature of the algorithm that I don't understand at the moment.
+As of today, the program runs and it's quite fast, so I got that going for me, which is nice. Generated animated gifs can get huge, though. For the moment, it works only with square images.
 
-Here's a sample. Left to right, the pictures were generated with 1, 2 and 4 scales (i.e. Turing patterns evolving within the same picture).
-
-![](https://github.com/xdlg/Muscatupa/blob/master/img/sample.gif)
+![](https://github.com/xdlg/Muscatupa/blob/master/img/3.png)

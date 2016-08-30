@@ -27,11 +27,11 @@
 #define PATH_TO_GIF		"0.gif"
 
 #define N_SCALES 		5 	/**< Number of Turing patterns/scales */
-#define W				300 /**< Image width */
-#define H				300	/**< Image height */
+#define W				1000 /**< Image width */
+#define H				1000	/**< Image height */
 #define N_STEPS 		100 /**< Number of timesteps to generate */
 
-#define ANIMATE 		1 	/**< 0 to save only the last generated picture */
+#define ANIMATE 		0 	/**< 0 to save only the last generated picture */
 
 /******************************************************************************
  * Types and structures
@@ -62,13 +62,15 @@ const float sa_all[N_SCALES] = {0.05, 0.04, 0.03, 0.02, 0.01}; /**< Small amount
 void init_image(uint32_t w, uint32_t h, float s[][h]);
 void build_colormap(uint32_t depth, int32_t *colors);
 void step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, float im[][h]);
+void symmetrize(uint32_t dim, float s[][dim]);
 void compute_var(uint32_t n, uint32_t w, uint32_t h, float act[][w][h], 
 	float inh[][w][h], float var[][w][h]);
 void find_best_scale(uint32_t n, uint32_t w, uint32_t h, float var[][w][h],
 	uint32_t best_scale[][h]);
-void update_image(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, 
-	float im[][h], float act[][w][h], float inh[][w][h], uint32_t best_scale[][h]);
-void normalize_image(uint32_t w, uint32_t h, float s[][h]);
+void update(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, 
+	float im[][h], float act[][w][h], float inh[][w][h], 
+	uint32_t best_scale[][h]);
+void normalize(uint32_t w, uint32_t h, float s[][h]);
 void convert_image(uint32_t w, uint32_t h, float im_float[][h], 
 	uint8_t im_bytes[][h]);
 uint32_t write_gif(unsigned char *gif_image, uint32_t n_bytes);
@@ -208,13 +210,36 @@ void step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, float im[][h])
 	for (i=0; i<n; i++)
 	{
 		blur(w, h, im, act[i], (p+i)->act_r);
+		symmetrize(w, act[i]);
 		blur(w, h, im, inh[i], (p+i)->inh_r);
+		symmetrize(w, inh[i]);
 	}
 	
 	compute_var(n, w, h, act, inh, var);
 	find_best_scale(n, w, h, var, best_scale);
-	update_image(p, n, w, h, im, act, inh, best_scale);
-	normalize_image(w, h, im);
+	update(p, n, w, h, im, act, inh, best_scale);
+	normalize(w, h, im);
+}
+
+/**************************************************************************//**
+ * Apply a symmetry rule to the image.
+ * @param dim image dimension
+ * @param im image (overwritten)
+ *****************************************************************************/
+void symmetrize(uint32_t dim, float s[][dim])
+{
+	float avg;
+	uint32_t x, y;
+
+	for (x=0; x<dim; x++)
+	{
+		for (y=0; y<dim/2; y++)
+		{
+			avg = (s[x][y] + s[dim-1-x][dim-1-y]) / 2;
+			s[x][y] = avg;
+			s[dim-1-x][dim-1-y] = avg;
+		}
+	}
 }
 
 /**************************************************************************//**
@@ -281,7 +306,7 @@ void find_best_scale(uint32_t n, uint32_t w, uint32_t h, float var[][w][h],
 }
 
 /**************************************************************************//**
- * Update the image on one single scale.
+ * Update the image.
  * Each pixel of the image is increased/decreased by a small amount depending
  * on the activator and inhibitor value at those coordinates. This function is
  * normally called with the parameters of the smallest-variation scale.
@@ -294,8 +319,9 @@ void find_best_scale(uint32_t n, uint32_t w, uint32_t h, float var[][w][h],
  * @param inh inhibitor arrays
  * @param best_scale scale with the smallest variation
  *****************************************************************************/
-void update_image(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, 
-	float im[][h], float act[][w][h], float inh[][w][h], uint32_t best_scale[][h])
+void update(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, 
+	float im[][h], float act[][w][h], float inh[][w][h], 
+	uint32_t best_scale[][h])
 {
 	uint32_t i, x, y;
 	
@@ -315,7 +341,7 @@ void update_image(struct pattern *p, uint32_t n, uint32_t w, uint32_t h,
  * @param h height of the image
  * @param im image (overwritten)
  *****************************************************************************/
-void normalize_image(uint32_t w, uint32_t h, float im[][h])
+void normalize(uint32_t w, uint32_t h, float im[][h])
 {
 	float max, min, range;
 	uint32_t x, y;
