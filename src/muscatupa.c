@@ -26,10 +26,10 @@
 #define DISPOSAL 		1 	/**< Don't really know the influence of that */
 #define PATH_TO_GIF		"0.gif"
 
-#define N_SCALES 		4 	/**< Number of Turing patterns/scales */
+#define N_SCALES 		5 	/**< Number of Turing patterns/scales */
 #define W				300 /**< Image width */
 #define H				300	/**< Image height */
-#define N_STEPS 		200 /**< Number of timesteps to generate */
+#define N_STEPS 		100 /**< Number of timesteps to generate */
 
 #define ANIMATE 		1 	/**< 0 to save only the last generated picture */
 
@@ -52,9 +52,9 @@ struct pattern
 /** 
 * Parameters of the Turing patterns.
 */
-const uint32_t act_r_all[N_SCALES] = {10, 25, 10, 5};	 /**< Activator radii */
-const uint32_t inh_r_all[N_SCALES] = {20, 50, 20, 10};	 /**< Inhibitor radii */
-const float sa_all[N_SCALES] = {0.05, 0.04, 0.03, 0.02}; /**< Small amounts */
+const uint32_t act_r_all[N_SCALES] = {100, 20, 10, 5, 1};	 /**< Activator radii */
+const uint32_t inh_r_all[N_SCALES] = {200, 40, 20, 10, 2};	 /**< Inhibitor radii */
+const float sa_all[N_SCALES] = {0.05, 0.04, 0.03, 0.02, 0.01}; /**< Small amounts */
 
 /******************************************************************************
  * Private functions
@@ -63,9 +63,11 @@ void init_image(uint32_t w, uint32_t h, float s[][h]);
 void build_colormap(uint32_t depth, int32_t *colors);
 void step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, float im[][h]);
 void compute_var(uint32_t n, uint32_t w, uint32_t h, float act[][w][h], 
-	float inh[][w][h], float var[][w][h], float *lst_var);
-void update_image(struct pattern *p, uint32_t w, uint32_t h, float im[][h],
-	float act[][h], float inh[][h]);
+	float inh[][w][h], float var[][w][h]);
+void find_best_scale(uint32_t n, uint32_t w, uint32_t h, float var[][w][h],
+	uint32_t best_scale[][h]);
+void update_image(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, 
+	float im[][h], float act[][w][h], float inh[][w][h], uint32_t best_scale[][h]);
 void normalize_image(uint32_t w, uint32_t h, float s[][h]);
 void convert_image(uint32_t w, uint32_t h, float im_float[][h], 
 	uint8_t im_bytes[][h]);
@@ -147,9 +149,9 @@ int main(void)
  * The w*h array is filled with values E[-1; 1].
  * @param w width of the image
  * @param h height of the image
- * @param s source image in a 2D array (overwritten)
+ * @param im image (overwritten)
  *****************************************************************************/
-void init_image(uint32_t w, uint32_t h, float s[][h])
+void init_image(uint32_t w, uint32_t h, float im[][h])
 {
 	uint32_t x, y;
 	
@@ -158,7 +160,7 @@ void init_image(uint32_t w, uint32_t h, float s[][h])
 	{
 		for (y = 0; y < h; y++)
 		{
-			s[x][y] = (float)rand() / (float)(RAND_MAX) * 2.0 - 1.0;
+			im[x][y] = (float)rand() / (float)(RAND_MAX) * 2.0 - 1.0;
 		}
 	}
 }
@@ -199,23 +201,19 @@ void step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, float im[][h])
 	float act[n][w][h];	// Activator arrays
 	float inh[n][w][w];	// Inhibitor arrays
 	float var[n][w][h];	// Variation arrays
-	float lst_var[n];	// Least variation for each scale
-	float dummy;
-	uint32_t i, min;
+	uint32_t best_scale[w][h];
+	uint32_t i;
 	
-	// Generate the activator and inhibitor arrays (try with multiple passes)
+	// Generate the activator and inhibitor arrays
 	for (i=0; i<n; i++)
 	{
 		blur(w, h, im, act[i], (p+i)->act_r);
 		blur(w, h, im, inh[i], (p+i)->inh_r);
 	}
 	
-	// Find the scale with smallest variation
-	compute_var(n, w, h, act, inh, var, lst_var);
-	min = min_array(n, lst_var, &dummy);
-	
-	// Update the image with the scale that has just been found
-	update_image((p+min), w, h, im, act[min], inh[min]);
+	compute_var(n, w, h, act, inh, var);
+	find_best_scale(n, w, h, var, best_scale);
+	update_image(p, n, w, h, im, act, inh, best_scale);
 	normalize_image(w, h, im);
 }
 
@@ -224,38 +222,61 @@ void step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, float im[][h])
  * The variation is simply |activator[x][y] - inhibitor[x][y]| for each pixel.
  * Normally there should be an averaging over a radius, but it's simpler to 
  * code that for a single-pixel radius and in theory it gives better pictures.
- * Although the smallest variation for each scale could be computed in another
- * function, it's more elegant to do it here since we're going through the
- * whole array anyway.
  * @param n number of Turing patterns
  * @param w width of the image
  * @param h height of the image
  * @param act activator arrays
  * @param inh inhibitor arrays
  * @param var variation arrays (overwritten)
- * @param lst_var least variations for all scales (overwritten)
  *****************************************************************************/
 void compute_var(uint32_t n, uint32_t w, uint32_t h, float act[][w][h], 
-	float inh[][w][h], float var[][w][h], float *lst_var)
+	float inh[][w][h], float var[][w][h])
 {
-	float min;
 	uint32_t x, y;
 	uint32_t i;
 	
 	for (i=0; i<n; i++)
-	{
-		min = 10; // Arbitrary value
-		
+	{		
 		for (x=0; x<w; x++)
 		{
 			for (y=0; y<h; y++)
 			{
 				var[i][x][y] = fabs(act[i][x][y] - inh[i][x][y]);
-				if (var[i][x][y] < min) min = var[i][x][y];
 			}
 		}
-		
-		lst_var[i] = min;
+	}
+}
+
+/**************************************************************************//**
+ * Find which scale has the smallest variation.
+ * @param n number of Turing patterns
+ * @param w width of the image
+ * @param h height of the image
+ * @param var variation arrays 
+ * @param best_scale scale with the smallest variation (overwritten)
+ *****************************************************************************/
+void find_best_scale(uint32_t n, uint32_t w, uint32_t h, float var[][w][h],
+	uint32_t best_scale[][h])
+{
+	float lst_var[w][h];
+	uint32_t i, x, y;
+	
+	for (x=0; x<w; x++)
+	{
+		for (y=0; y<h; y++)
+		{
+			// Start by assuming that scale 0 is the best
+			lst_var[x][y] = var[0][x][y];
+			best_scale[x][y] = 0;
+			for (i=1; i<n; i++)
+			{
+				if (var[i][x][y] < lst_var[x][y])
+				{
+					lst_var[x][y] = var[i][x][y];
+					best_scale[x][y] = i;
+				}
+			}
+		}
 	}
 }
 
@@ -264,23 +285,26 @@ void compute_var(uint32_t n, uint32_t w, uint32_t h, float act[][w][h],
  * Each pixel of the image is increased/decreased by a small amount depending
  * on the activator and inhibitor value at those coordinates. This function is
  * normally called with the parameters of the smallest-variation scale.
- * @param p a Turing pattern
+ * @param p array of Turing patterns
+ * @param n number of Turing patterns
  * @param w width of the image
  * @param h height of the image
  * @param im image (overwritten)
- * @param act activator array
- * @param inh inhibitor array
+ * @param act activator arrays
+ * @param inh inhibitor arrays
+ * @param best_scale scale with the smallest variation
  *****************************************************************************/
-void update_image(struct pattern *p, uint32_t w, uint32_t h, float im[][h],
-	float act[][h], float inh[][h])
+void update_image(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, 
+	float im[][h], float act[][w][h], float inh[][w][h], uint32_t best_scale[][h])
 {
-	uint32_t x, y;
+	uint32_t i, x, y;
 	
-	for (x = 0; x < w; x++)
+	for (x=0; x<w; x++)
 	{
-		for (y = 0; y < h; y++)
+		for (y=0; y<h; y++)
 		{
-			im[x][y] += act[x][y] > inh[x][y] ? p->sa : -(p->sa);
+			i = best_scale[x][y];
+			im[x][y] += act[i][x][y] > inh[i][x][y] ? (p+i)->sa : -((p+i)->sa);
 		}
 	}
 }
