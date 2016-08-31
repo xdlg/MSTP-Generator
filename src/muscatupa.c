@@ -14,12 +14,12 @@
 #include <math.h>
 #include "gifsave/gifsave89.c"
 #include "utils.h"
+#include "colormap.h"
 #include "blur.h"
 
 /******************************************************************************
  * #define
  *****************************************************************************/
-#define COLOR_DEPTH 	256 /**< Number of color levels in the final image */
 #define N_REPEATS 		0 	/**< 0: loop the gif animation */
 #define T_FRAME 		4 	/**< *10 ms: timespan of a gif frame */
 #define TRANSPARENCY	-1 	/**< -1: no transparency */
@@ -27,11 +27,11 @@
 #define PATH_TO_GIF		"0.gif"
 
 #define N_SCALES 		5 	/**< Number of Turing patterns/scales */
-#define W				1000 /**< Image width */
-#define H				1000	/**< Image height */
-#define N_STEPS 		100 /**< Number of timesteps to generate */
+#define W				500 /**< Image width */
+#define H				500	/**< Image height */
+#define N_STEPS 		1440 /**< Number of timesteps to generate */
 
-#define ANIMATE 		0 	/**< 0 to save only the last generated picture */
+#define ANIMATE 		1 	/**< 0 to save only the last generated picture */
 
 /******************************************************************************
  * Types and structures
@@ -60,7 +60,6 @@ const float sa_all[N_SCALES] = {0.05, 0.04, 0.03, 0.02, 0.01}; /**< Small amount
  * Private functions
  *****************************************************************************/
 void init_image(uint32_t w, uint32_t h, float s[][h]);
-void build_colormap(uint32_t depth, int32_t *colors);
 void step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, float im[][h]);
 void symmetrize(uint32_t dim, float s[][dim]);
 void compute_var(uint32_t n, uint32_t w, uint32_t h, float act[][w][h], 
@@ -95,8 +94,8 @@ int main(void)
 	uint32_t i;
 	
 	init_image(W, H, im_float);
-	build_colormap(COLOR_DEPTH, colors);
-	
+	build_colormap(colors);
+
 	// Initialize the patterns
 	for (i=0; i<N_SCALES; i++)
 	{
@@ -142,7 +141,7 @@ int main(void)
 		write_gif(gif_image, n_bytes);
 		free(gif_image); 
 	}
-
+ 
 	return 0;
 }
 
@@ -165,29 +164,6 @@ void init_image(uint32_t w, uint32_t h, float im[][h])
 			im[x][y] = (float)rand() / (float)(RAND_MAX) * 2.0 - 1.0;
 		}
 	}
-}
-
-/**************************************************************************//**
- * Build the RGB colormap for gifsave89.
- * The colormap associates an RGB value for each pixel value. For instance,
- * with a pixel depth of 1 bit, the colormap could be:
- * {0, 0, 0, 255, 255, 255, -1} -> a pixel value of 0 is black, pixel 1 is
- * white, and the array is terminated with -1.
- * @param depth color depth
- * @param colors colormap array (overwritten)
- *****************************************************************************/
-void build_colormap(uint32_t depth, int32_t *colors)
-{
-	uint32_t i;
-	
-	// Grayscale map
-	for (i=0; i<depth; i++)
-	{
-		colors[3*i] = i;
-		colors[3*i+1] = i;
-		colors[3*i+2] = i;
-	}
-	colors[3*depth] = -1;
 }
 
 /**************************************************************************//**
@@ -226,7 +202,7 @@ void step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, float im[][h])
  * @param dim image dimension
  * @param im image (overwritten)
  *****************************************************************************/
-void symmetrize(uint32_t dim, float s[][dim])
+void symmetrize(uint32_t dim, float im[][dim])
 {
 	float avg;
 	uint32_t x, y;
