@@ -26,6 +26,7 @@
 /******************************************************************************
  * Public functions
  *****************************************************************************/ 
-void blur(uint32_t w, uint32_t h, float s[][h], float d[][h], uint32_t r);
+void blur(uint32_t w, uint32_t h, float s[][h], float d[][h], uint32_t r, 
+	uint32_t wt);
 
 #endif

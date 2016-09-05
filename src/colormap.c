@@ -23,7 +23,6 @@ static void gradient2(uint32_t depth, uint32_t *rgb_min, uint32_t *rgb_max,
 	int32_t *map);
 static void gradient3(uint32_t depth, uint32_t *rgb_min, uint32_t *rgb_mid, 
 	uint32_t *rgb_max, int32_t *map);
-static void check_map(int32_t *map);
  
 /**************************************************************************//**
  * Build the RGB colormap for gifsave89.
@@ -36,8 +35,8 @@ void build_colormap(int32_t *colors)
 	uint32_t black[3] = {0, 0, 0};
 	uint32_t white[3] = {255, 255, 255};
 	//uint32_t red[3] = {150, 0, 0};
-	uint32_t purple[3] = {100, 0, 100};
-	//uint32_t green[3] = {0, 150, 0};
+	uint32_t purple[3] = {80, 0, 80};
+	//uint32_t green[3] = {0, 100, 0};
 	//uint32_t blue[3] = {0, 0, 150};
 	
 	//gradient2(COLOR_DEPTH, black, white, colors);

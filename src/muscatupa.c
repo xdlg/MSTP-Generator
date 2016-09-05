@@ -11,11 +11,11 @@
 #include <stdlib.h>
 #include <time.h>
 #include <float.h>
-#include <math.h>
 #include "gifsave/gifsave89.c"
 #include "utils.h"
 #include "colormap.h"
 #include "blur.h"
+#include "symmetry.h"
 
 /******************************************************************************
  * #define
@@ -27,23 +27,25 @@
 #define PATH_TO_GIF		"0.gif"
 
 #define N_SCALES 		5 	/**< Number of Turing patterns/scales */
-#define W				500 /**< Image width */
-#define H				500	/**< Image height */
-#define N_STEPS 		1440 /**< Number of timesteps to generate */
+#define W				300 /**< Image width */
+#define H				300	/**< Image height */
+#define N_STEPS 		400 /**< Number of timesteps to generate */
 
 #define ANIMATE 		1 	/**< 0 to save only the last generated picture */
 
 /******************************************************************************
  * Types and structures
  *****************************************************************************/
-/** 
-* One Turing pattern/one scale.
-*/
+/**
+ * One Turing pattern/one scale.
+ */
 struct pattern
 {
 	uint32_t act_r; /**< Activator radius */
 	uint32_t inh_r; /**< Inhibitor radius */
 	float sa;		/**< Small amount */
+	uint32_t wt;	/**< Weight */
+	uint32_t s;		/**< Symmetry order */
 };
 
 /******************************************************************************
@@ -52,16 +54,18 @@ struct pattern
 /** 
 * Parameters of the Turing patterns.
 */
-const uint32_t act_r_all[N_SCALES] = {100, 20, 10, 5, 1};	 /**< Activator radii */
-const uint32_t inh_r_all[N_SCALES] = {200, 40, 20, 10, 2};	 /**< Inhibitor radii */
-const float sa_all[N_SCALES] = {0.05, 0.04, 0.03, 0.02, 0.01}; /**< Small amounts */
+const uint32_t act_r_all[N_SCALES] = {100, 20, 10, 5, 1};	 	/**< Activator radii */
+const uint32_t inh_r_all[N_SCALES] = {200, 40, 20, 10, 2};	 	/**< Inhibitor radii */
+const float sa_all[N_SCALES] = {0.05, 0.04, 0.03, 0.02, 0.01}; 	/**< Small amounts */
+const uint32_t wt_all[N_SCALES] = {1, 1, 1, 1, 1}; 				/**< Weights */
+const uint32_t s_all[N_SCALES] = {3, 2, 2, 2, 2}; 				/**< Symmetry orders */
 
 /******************************************************************************
  * Private functions
  *****************************************************************************/
 void init_image(uint32_t w, uint32_t h, float s[][h]);
-void step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, float im[][h]);
-void symmetrize(uint32_t dim, float s[][dim]);
+void step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, float im[][h],
+	struct sym **head_sym);
 void compute_var(uint32_t n, uint32_t w, uint32_t h, float act[][w][h], 
 	float inh[][w][h], float var[][w][h]);
 void find_best_scale(uint32_t n, uint32_t w, uint32_t h, float var[][w][h],
@@ -91,17 +95,23 @@ int main(void)
 	float im_float[W][H];		// Image with values E[-1; 1]
 	uint8_t im_bytes[W][H];		// Image with values E[0; 255]
 	
+	struct sym *head_sym[N_SCALES]; // Arrays of symmetry linked lists
+	struct sym *tail_sym[N_SCALES];
+	
 	uint32_t i;
 	
 	init_image(W, H, im_float);
 	build_colormap(colors);
 
-	// Initialize the patterns
+	// Initialize the patterns and the symmetries
 	for (i=0; i<N_SCALES; i++)
 	{
 		p[i].act_r = act_r_all[i];
 		p[i].inh_r = inh_r_all[i];
 		p[i].sa = sa_all[i];
+		p[i].wt = wt_all[i];
+		p[i].s = s_all[i];
+		build_sym_list(&(head_sym[i]), &(tail_sym[i]), W, p[i].s);
 	}
 	
 	// Initialize GIF
@@ -119,7 +129,7 @@ int main(void)
 		for (i=0; i<N_STEPS; i++)
 		{
 			printf("%d/%d\n", i+1, N_STEPS);
-			step(p, N_SCALES, W, H, im_float);
+			step(p, N_SCALES, W, H, im_float, head_sym);
 			if (ANIMATE)
 			{
 				convert_image(W, H, im_float, im_bytes);
@@ -141,6 +151,8 @@ int main(void)
 		write_gif(gif_image, n_bytes);
 		free(gif_image); 
 	}
+	
+	free_sym(*head_sym);
  
 	return 0;
 }
@@ -173,8 +185,10 @@ void init_image(uint32_t w, uint32_t h, float im[][h])
  * @param w width of the image
  * @param h height of the image
  * @param im image (overwritten)
+ * @param head_sym linked list of symmetries
  *****************************************************************************/
-void step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, float im[][h])
+void step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, float im[][h],
+	struct sym **head_sym)
 {
 	float act[n][w][h];	// Activator arrays
 	float inh[n][w][w];	// Inhibitor arrays
@@ -185,37 +199,16 @@ void step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, float im[][h])
 	// Generate the activator and inhibitor arrays
 	for (i=0; i<n; i++)
 	{
-		blur(w, h, im, act[i], (p+i)->act_r);
-		symmetrize(w, act[i]);
-		blur(w, h, im, inh[i], (p+i)->inh_r);
-		symmetrize(w, inh[i]);
+		blur(w, h, im, act[i], (p+i)->act_r, (p+i)->wt);
+		symmetrize(head_sym[i], w, act[i]);
+		blur(w, h, im, inh[i], (p+i)->inh_r, (p+i)->wt);
+		symmetrize(head_sym[i], w, inh[i]);
 	}
 	
 	compute_var(n, w, h, act, inh, var);
 	find_best_scale(n, w, h, var, best_scale);
 	update(p, n, w, h, im, act, inh, best_scale);
 	normalize(w, h, im);
-}
-
-/**************************************************************************//**
- * Apply a symmetry rule to the image.
- * @param dim image dimension
- * @param im image (overwritten)
- *****************************************************************************/
-void symmetrize(uint32_t dim, float im[][dim])
-{
-	float avg;
-	uint32_t x, y;
-
-	for (x=0; x<dim; x++)
-	{
-		for (y=0; y<dim/2; y++)
-		{
-			avg = (s[x][y] + s[dim-1-x][dim-1-y]) / 2;
-			s[x][y] = avg;
-			s[dim-1-x][dim-1-y] = avg;
-		}
-	}
 }
 
 /**************************************************************************//**

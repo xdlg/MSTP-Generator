@@ -21,9 +21,9 @@
  * Private functions
  *****************************************************************************/
 static void blur_x(uint32_t w, uint32_t h, float s[][h], float d[][h], 
-	uint32_t r);
+	uint32_t r, uint32_t wt);
 static void blur_y(uint32_t w, uint32_t h, float s[][h], float d[][h], 
-	uint32_t r);
+	uint32_t r, uint32_t wt);
 
 /**************************************************************************//**
  * Box blur main function.
@@ -33,12 +33,14 @@ static void blur_y(uint32_t w, uint32_t h, float s[][h], float d[][h],
  * @param s source image
  * @param d destination image (overwritten)
  * @param r blurring radius in pixels
+ * @param wt weight
  *****************************************************************************/
-void blur(uint32_t w, uint32_t h, float s[][h], float d[][h], uint32_t r)
+void blur(uint32_t w, uint32_t h, float s[][h], float d[][h], uint32_t r,
+	uint32_t wt)
 {
 	float temp[w][h];
-	blur_x(w, h, s, temp, r);
-	blur_y(w, h, temp, d, r);
+	blur_x(w, h, s, temp, r, wt);
+	blur_y(w, h, temp, d, r, wt);
 }
 
 /**************************************************************************//**
@@ -49,8 +51,10 @@ void blur(uint32_t w, uint32_t h, float s[][h], float d[][h], uint32_t r)
  * @param s source image
  * @param d destination image (overwritten)
  * @param r blurring radius in pixels
+ * @param wt weight
  *****************************************************************************/
-void blur_x(uint32_t w, uint32_t h, float s[][h], float d[][h], uint32_t r)
+void blur_x(uint32_t w, uint32_t h, float s[][h], float d[][h], uint32_t r,
+	uint32_t wt)
 {	
 	float sum;
 	uint32_t x, y, span;
@@ -65,7 +69,7 @@ void blur_x(uint32_t w, uint32_t h, float s[][h], float d[][h], uint32_t r)
 		{
 			sum += s[x][y];
 		}
-		d[0][y] = sum / (r + 1);
+		d[0][y] = (float)wt * sum / (r + 1);
 		
 		// The other pixels are computed with a moving average. Pixel values 
 		// are subtracted or added from the sum *only* if they are part of the
@@ -82,7 +86,7 @@ void blur_x(uint32_t w, uint32_t h, float s[][h], float d[][h], uint32_t r)
 			sum += (x+r) < w ? s[x+r][y] : 0;
             span = ((x+r) < w ? (x+r) : (w-1))
 				 - ((int32_t)(x-r) >= 0 ? (x-r) : 0) + 1;
-            d[x][y] = sum / span;
+            d[x][y] = (float)wt * sum / span;
 		}
 		
 	}
@@ -96,8 +100,10 @@ void blur_x(uint32_t w, uint32_t h, float s[][h], float d[][h], uint32_t r)
  * @param s source image
  * @param d destination image (overwritten)
  * @param r blurring radius in pixels
+ * @param wt weight
  *****************************************************************************/
-void blur_y(uint32_t w, uint32_t h, float s[][h], float d[][h], uint32_t r)
+void blur_y(uint32_t w, uint32_t h, float s[][h], float d[][h], uint32_t r,
+	uint32_t wt)
 {	
 	// See the comments in blur_x, it's exactly the same but working on the
 	// columns instead of the rows.
@@ -112,7 +118,7 @@ void blur_y(uint32_t w, uint32_t h, float s[][h], float d[][h], uint32_t r)
 		{
 			sum += s[x][y];
 		}
-		d[x][0] = sum / (r + 1);
+		d[x][0] = (float)wt * sum / (r + 1);
 		
 		for (y=1; y<h; y++)
 		{
@@ -120,7 +126,7 @@ void blur_y(uint32_t w, uint32_t h, float s[][h], float d[][h], uint32_t r)
 			sum += (y+r) < h ? s[x][y+r] : 0;
             span = ((y+r) < h ? (y+r) : (h-1))
 				 - ((int32_t)(y-r) >= 0 ? (y-r) : 0) + 1;
-            d[x][y] = sum / span;
+            d[x][y] = (float)wt * sum / span;
 		}
 	}
 }
