@@ -58,16 +58,16 @@ void gradient2(uint32_t depth, uint32_t *rgb_min, uint32_t *rgb_max,
 	float grad[3];
 	uint32_t i, j;
 	
-	for (j=0; j<3; j++)
+	for (j = 0; j < 3; j++)
 	{
 		grad[j] = ((float)rgb_max[j] - (float)rgb_min[j]) / (float)depth;
 	}
 	
-	for (i=0; i<depth; i++)
+	for (i = 0; i < depth; i++)
 	{
-		for (j=0; j<3; j++)
+		for (j = 0; j < 3; j++)
 		{
-			colors[3*i+j] = (int32_t)(i*grad[j] + rgb_min[j]);
+			colors[3 * i + j] = (int32_t)(i * grad[j] + rgb_min[j]);
 		}
 	}
 }
@@ -83,8 +83,8 @@ void gradient2(uint32_t depth, uint32_t *rgb_min, uint32_t *rgb_max,
 void gradient3(uint32_t depth, uint32_t *rgb_min, uint32_t *rgb_mid, 
 	uint32_t *rgb_max, int32_t *colors)
 {
-	gradient2(depth/2, rgb_min, rgb_mid, colors);
-	gradient2(depth/2, rgb_mid, rgb_max, colors + 3*depth/2);
+	gradient2(depth / 2, rgb_min, rgb_mid, colors);
+	gradient2(depth / 2, rgb_mid, rgb_max, colors + 3 * depth / 2);
 }
 
 /**************************************************************************//**
@@ -99,9 +99,9 @@ void check_map(int32_t *colors)
 {
 	uint32_t i;
 	
-	for (i=0; i<COLOR_DEPTH; i++)
+	for (i = 0; i < COLOR_DEPTH; i++)
 	{
 		printf("%d - [%d][%d][%d]\n", 
-			i, colors[3*i], colors[3*i+1], colors[3*i+2]);
+			i, colors[3 * i], colors[3 * i + 1], colors[3 * i + 2]);
 	}
 }

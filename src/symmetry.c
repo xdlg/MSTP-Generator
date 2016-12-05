@@ -28,7 +28,7 @@ static void free_xy(struct xy *head);
 static void rotate(uint32_t dim, uint32_t x, uint32_t y, float a, int32_t *xr, 
 	int32_t *yr);
  
- /**************************************************************************//**
+/**************************************************************************//**
  * Build the list of lists of symmetrical coordinates.
  * @param head_sym pointer² to the first symmetry of the list (overwritten)
  * @param tail_sym pointer² to the last symmetry of the list (overwritten)
@@ -61,9 +61,9 @@ void build_sym_list(struct sym **head_sym, struct sym **tail_sym, uint32_t dim,
 	// symmetry list
 	else if (s == 1)
 	{
-		for (x=0; x<dim; x++)
+		for (x = 0; x < dim; x++)
 		{
-			for (y=0; y<dim; y++)
+			for (y = 0; y < dim; y++)
 			{
 				head_xy = NULL;
 				tail_xy = NULL;
@@ -80,9 +80,9 @@ void build_sym_list(struct sym **head_sym, struct sym **tail_sym, uint32_t dim,
 		slope = tanf(2.0 * (float)M_PI / (float)s);
 		
 		// For all coordinates in the top half of the image...
-		for (x=0; x<dim; x++)
+		for (x = 0; x < dim; x++)
 		{
-			for (y=0; y<r; y++)
+			for (y = 0; y < r; y++)
 			{
 				// Initialize coordinates list
 				head_xy = NULL;
@@ -105,7 +105,7 @@ void build_sym_list(struct sym **head_sym, struct sym **tail_sym, uint32_t dim,
 					
 					// Add the symmetrical points to the list, only if they're
 					// within the image
-					for (i=1; i<s; i++)
+					for (i = 1; i < s; i++)
 					{
 						a = 2.0 * (float)i * (float)M_PI / (float)s;
 						rotate(dim, x, y, a, &xr, &yr);
@@ -253,9 +253,9 @@ void check_sym_list(struct sym *head_sym, uint32_t dim)
     uint32_t x, y, i;
     uint32_t im[dim][dim];
     
-    for (x=0; x<dim; x++)
+    for (x = 0; x < dim; x++)
 	{
-		for (y=0; y<dim; y++)
+		for (y = 0; y < dim; y++)
 		{
 			im[x][y] = 0;
 		}
@@ -273,9 +273,9 @@ void check_sym_list(struct sym *head_sym, uint32_t dim)
         current_sym = current_sym->next;
     }
     
-    for (y=0; y<dim; y++)
+    for (y = 0; y < dim; y++)
 	{
-		for (x=0; x<dim; x++)
+		for (x = 0; x < dim; x++)
 		{
 			printf("%d ", im[x][y]);
 		}

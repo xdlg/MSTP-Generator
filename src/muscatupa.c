@@ -104,7 +104,7 @@ int main(void)
 	build_colormap(colors);
 
 	// Initialize the patterns and the symmetries
-	for (i=0; i<N_SCALES; i++)
+	for (i = 0; i < N_SCALES; i++)
 	{
 		p[i].act_r = act_r_all[i];
 		p[i].inh_r = inh_r_all[i];
@@ -126,7 +126,7 @@ int main(void)
 		}
 		
 		// Build frames
-		for (i=0; i<N_STEPS; i++)
+		for (i = 0; i < N_STEPS; i++)
 		{
 			printf("%d/%d\n", i+1, N_STEPS);
 			step(p, N_SCALES, W, H, im_float, head_sym);
@@ -197,7 +197,7 @@ void step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, float im[][h],
 	uint32_t i;
 	
 	// Generate the activator and inhibitor arrays
-	for (i=0; i<n; i++)
+	for (i = 0; i < n; i++)
 	{
 		blur(w, h, im, act[i], (p+i)->act_r, (p+i)->wt);
 		symmetrize(head_sym[i], w, act[i]);
@@ -229,11 +229,11 @@ void compute_var(uint32_t n, uint32_t w, uint32_t h, float act[][w][h],
 	uint32_t x, y;
 	uint32_t i;
 	
-	for (i=0; i<n; i++)
+	for (i = 0; i < n; i++)
 	{		
-		for (x=0; x<w; x++)
+		for (x = 0; x < w; x++)
 		{
-			for (y=0; y<h; y++)
+			for (y = 0; y < h; y++)
 			{
 				var[i][x][y] = fabs(act[i][x][y] - inh[i][x][y]);
 			}
@@ -255,14 +255,14 @@ void find_best_scale(uint32_t n, uint32_t w, uint32_t h, float var[][w][h],
 	float lst_var[w][h];
 	uint32_t i, x, y;
 	
-	for (x=0; x<w; x++)
+	for (x = 0; x < w; x++)
 	{
-		for (y=0; y<h; y++)
+		for (y = 0; y < h; y++)
 		{
 			// Start by assuming that scale 0 is the best
 			lst_var[x][y] = var[0][x][y];
 			best_scale[x][y] = 0;
-			for (i=1; i<n; i++)
+			for (i = 1; i < n; i++)
 			{
 				if (var[i][x][y] < lst_var[x][y])
 				{
@@ -294,9 +294,9 @@ void update(struct pattern *p, uint32_t n, uint32_t w, uint32_t h,
 {
 	uint32_t i, x, y;
 	
-	for (x=0; x<w; x++)
+	for (x = 0; x < w; x++)
 	{
-		for (y=0; y<h; y++)
+		for (y = 0; y < h; y++)
 		{
 			i = best_scale[x][y];
 			im[x][y] += act[i][x][y] > inh[i][x][y] ? (p+i)->sa : -((p+i)->sa);
@@ -319,11 +319,11 @@ void normalize(uint32_t w, uint32_t h, float im[][h])
 	min_array(w*h, (float *)im, &min);
 	range = max - min;
 	
-	for (x=0; x<w; x++)
+	for (x = 0; x < w; x++)
 	{
-		for (y=0; y<h; y++)
+		for (y = 0; y < h; y++)
 		{
-			im[x][y] = 2*(im[x][y] - min) / range - 1;
+			im[x][y] = (2 * (im[x][y] - min) / range) - 1;
 		}
 	}
 }

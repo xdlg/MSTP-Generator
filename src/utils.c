@@ -31,11 +31,11 @@ uint32_t max_array(uint32_t length, float *array, float *max)
 	uint32_t i, i_max = 0;
 	*max = MAX_INIT;
 	
-	for (i=0; i<length; i++)
+	for (i = 0; i < length; i++)
 	{
-		if (*(array+i) > *max)
+		if (*(array + i) > *max)
 		{
-			*max = *(array+i);
+			*max = *(array + i);
 			i_max = i;
 		}
 	}
@@ -58,11 +58,11 @@ uint32_t min_array(uint32_t length, float *array, float *min)
 	uint32_t i, i_min = 0;
 	*min = MIN_INIT;
 	
-	for (i=0; i<length; i++)
+	for (i = 0; i < length; i++)
 	{
-		if (*(array+i) < *min)
+		if (*(array + i) < *min)
 		{
-			*min = *(array+i);
+			*min = *(array + i);
 			i_min = i;
 		}
 	}

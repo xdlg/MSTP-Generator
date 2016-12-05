@@ -8,6 +8,6 @@ all:
 
 run:
 	./$(SRC)$(PROJECT).out
-	eog $(OUT)
+	#eog $(OUT)
 	#ffmpeg -f gif -i 0.gif  0.mp4
 
