@@ -9,11 +9,11 @@
 #include <stdlib.h>
 #include <time.h>
 #include <float.h>
+#include <math.h>
 #include "gifsave/gifsave89.c"
 #include "utils.h"
 #include "colormap.h"
 #include "blur.h"
-#include "symmetry.h"
 
 #define N_REPEATS 		0 	/**< 0: Loop the gif animation */
 #define T_FRAME 		4 	/**< *10 ms: Timespan of a gif frame */
@@ -37,7 +37,6 @@ struct pattern
 	uint32_t inh_r; /**< Inhibitor radius */
 	float sa;		/**< Small amount */
 	uint32_t wt;	/**< Weight */
-	uint32_t s;		/**< Symmetry order */
 };
 
 /** 
@@ -47,7 +46,6 @@ const uint32_t act_r_all[N_SCALES] = {100, 20, 10, 5, 1};	 	/**< Activator radii
 const uint32_t inh_r_all[N_SCALES] = {200, 40, 20, 10, 2};	 	/**< Inhibitor radii */
 const float sa_all[N_SCALES] = {0.05, 0.04, 0.03, 0.02, 0.01}; 	/**< Small amounts */
 const uint32_t wt_all[N_SCALES] = {1, 1, 1, 1, 1}; 				/**< Weights */
-const uint32_t s_all[N_SCALES] = {3, 2, 2, 2, 2}; 				/**< Symmetry orders */
 
 /**************************************************************************//**
  * Initializes the image with random values.
@@ -67,11 +65,10 @@ static void init_image(uint32_t w, uint32_t h, float s[][h]);
  * @param[in] n Number of Turing patterns
  * @param[in] w Width of the image
  * @param[in] h Height of the image
- * @param[in] Linked list of symmetries
  * @param[inout] im Image
  *****************************************************************************/
 static void step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, 
-    struct sym **head_sym, float im[][h]);
+    float im[][h]);
 
 /**************************************************************************//**
  * Computes the variation arrays for all scales.
@@ -173,23 +170,18 @@ int main(void)
 	float im_float[W][H];		// Image with values E[-1; 1]
 	uint8_t im_bytes[W][H];		// Image with values E[0; 255]
 	
-	struct sym *head_sym[N_SCALES]; // Arrays of symmetry linked lists
-	struct sym *tail_sym[N_SCALES];
-	
 	uint32_t i;
 	
 	init_image(W, H, im_float);
 	build_colormap(colors);
 
-	// Initialize the patterns and the symmetries
+	// Initialize the patterns
 	for (i = 0; i < N_SCALES; i++)
 	{
 		p[i].act_r = act_r_all[i];
 		p[i].inh_r = inh_r_all[i];
 		p[i].sa = sa_all[i];
 		p[i].wt = wt_all[i];
-		p[i].s = s_all[i];
-		build_sym_list(&(head_sym[i]), &(tail_sym[i]), W, p[i].s);
 	}
 	
 	// Initialize GIF
@@ -207,7 +199,7 @@ int main(void)
 		for (i = 0; i < N_STEPS; i++)
 		{
 			printf("%d/%d\n", i+1, N_STEPS);
-			step(p, N_SCALES, W, H, head_sym, im_float);
+			step(p, N_SCALES, W, H, im_float);
 			if (ANIMATE)
 			{
 				convert_image(W, H, im_float, im_bytes);
@@ -229,8 +221,6 @@ int main(void)
 		write_gif(gif_image, n_bytes);
 		free(gif_image); 
 	}
-	
-	free_sym(*head_sym);
  
 	return 0;
 }
@@ -250,7 +240,7 @@ static void init_image(uint32_t w, uint32_t h, float im[][h])
 }
 
 static void step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h,
-    struct sym **head_sym, float im[][h])
+    float im[][h])
 {
 	float act[n][w][h];	// Activator arrays
 	float inh[n][w][w];	// Inhibitor arrays
@@ -262,9 +252,7 @@ static void step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h,
 	for (i = 0; i < n; i++)
 	{
 		blur(w, h, (p+i)->act_r, (p+i)->wt, im, act[i]);
-		symmetrize(head_sym[i], w, act[i]);
 		blur(w, h, (p+i)->inh_r, (p+i)->wt, im, inh[i]);
-		symmetrize(head_sym[i], w, inh[i]);
 	}
 	
 	compute_var(n, w, h, act, inh, var);
