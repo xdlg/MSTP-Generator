@@ -53,15 +53,15 @@ static void blur_x(uint32_t w, uint32_t h, uint32_t r, uint32_t wt,
 	
 	for (y = 0; y < h; y++)
 	{
-		sum = 0;
+		sum = 0.0;
 		
 		// In the blurred picture, the first pixel of each row is the average
-		// of the source pixels between x=0 and x=r-1.
-		for (x = 0; x < r; x++)
+		// of the source pixels between x = 0 and x = r.
+		for (x = 0; x <= r; x++)
 		{
 			sum += s[x][y];
 		}
-		d[0][y] = (float)wt * sum / (r + 1);
+		d[0][y] = (float)wt * sum / (float)(r + 1);
 		
 		// The other pixels are computed with a moving average. Pixel values 
 		// are subtracted or added from the sum *only* if they are part of the
@@ -74,11 +74,12 @@ static void blur_x(uint32_t w, uint32_t h, uint32_t r, uint32_t wt,
 		// this might not be so safe.
 		for (x = 1; x < w; x++)
 		{
-			sum -= (int32_t)(x - r - 1) >= 0 ? s[x - r - 1][y] : 0;
 			sum += (x + r) < w ? s[x + r][y] : 0;
+			sum -= (int32_t)(x - r - 1) >= 0 ? s[x - r - 1][y] : 0;
             span = ((x + r) < w ? (x + r) : (w - 1))
-				 - ((int32_t)(x - r) >= 0 ? (x - r) : 0) + 1;
-            d[x][y] = (float)wt * sum / span;
+				 - ((int32_t)(x - r) >= 0 ? (x - r) : 0) 
+                 + 1;
+            d[x][y] = (float)wt * sum / (float)span;
 		}
 		
 	}
@@ -94,21 +95,22 @@ static void blur_y(uint32_t w, uint32_t h, uint32_t r, uint32_t wt,
 	
 	for (x = 0; x < w; x++)
 	{
-		sum = 0;
+		sum = 0.0;
 		
-		for (y = 0; y < r; y++)
+		for (y = 0; y <= r; y++)
 		{
 			sum += s[x][y];
 		}
-		d[x][0] = (float)wt * sum / (r + 1);
+		d[x][0] = (float)wt * sum / (float)(r + 1);
 		
 		for (y = 1; y < h; y++)
 		{
-			sum -= (int32_t)(y - r - 1) >= 0 ? s[x][y - r - 1] : 0;
 			sum += (y + r) < h ? s[x][y + r] : 0;
+			sum -= (int32_t)(y - r - 1) >= 0 ? s[x][y - r - 1] : 0;
             span = ((y + r) < h ? (y + r) : (h - 1))
-				 - ((int32_t)(y - r) >= 0 ? (y - r) : 0) + 1;
-            d[x][y] = (float)wt * sum / span;
+				 - ((int32_t)(y - r) >= 0 ? (y - r) : 0)
+                 + 1;
+            d[x][y] = (float)wt * sum / (float)span;
 		}
 	}
 }
