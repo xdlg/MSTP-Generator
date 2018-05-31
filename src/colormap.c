@@ -1,35 +1,40 @@
 /**************************************************************************//**
  * @file
+ * 
  * Colormap generation for gifsave89.
+ * 
  * The colormap associates an RGB value for each pixel value. For instance,
  * with a pixel depth of 1 bit, the colormap could be:
  * {0, 0, 0, 255, 255, 255, -1} -> a pixel value of 0 is black, pixel 1 is
  * white, and the array is terminated with -1.
  *****************************************************************************/
 
-/******************************************************************************
- * #include
- *****************************************************************************/
 #include "colormap.h"
+#include <stdio.h>
 
-/******************************************************************************
- * Private variables
- *****************************************************************************/
- 
-/******************************************************************************
- * Private functions
+/**************************************************************************//**
+ * Builds a 2-color gradient.
+ * 
+ * @param[in] depth Number of color levels
+ * @param[in] rgb_min First color of the gradient
+ * @param[in] rgb_max Last color of the gradient
+ * @param[out] colors Colormap array, must have size 3*COLOR_DEPTH + 1
  *****************************************************************************/
 static void gradient2(uint32_t depth, uint32_t *rgb_min, uint32_t *rgb_max, 
 	int32_t *map);
+    
+/**************************************************************************//**
+ * Builds a 3-color gradient.
+ * 
+ * @param[in] depth Number of color levels
+ * @param[in] rgb_min First color of the gradient
+ * @param[in] rgb_mid Middle color of the gradient
+ * @param[in] rgb_max Last color of the gradient
+ * @param[out] colors Colormap array, must have size 3*COLOR_DEPTH + 1
+ *****************************************************************************/
 static void gradient3(uint32_t depth, uint32_t *rgb_min, uint32_t *rgb_mid, 
 	uint32_t *rgb_max, int32_t *map);
  
-/**************************************************************************//**
- * Build the RGB colormap for gifsave89.
- * Modify the called function to select another color scheme, transparently for 
- * the main program.
- * @param colors colormap array (overwritten), must have size 3*COLOR_DEPTH + 1
- *****************************************************************************/
 void build_colormap(int32_t *colors)
 {
 	uint32_t black[3] = {0, 0, 0};
@@ -45,14 +50,7 @@ void build_colormap(int32_t *colors)
 	//check_map(colors);
 }
 
-/**************************************************************************//**
- * Build a 2-color gradient.
- * @param depth number of color levels
- * @param rgb_min first color of the gradient
- * @param rgb_max last color of the gradient
- * @param colors colormap array (overwritten), must have size 3*COLOR_DEPTH + 1
- *****************************************************************************/
-void gradient2(uint32_t depth, uint32_t *rgb_min, uint32_t *rgb_max, 
+static void gradient2(uint32_t depth, uint32_t *rgb_min, uint32_t *rgb_max, 
 	int32_t *colors)
 {
 	float grad[3];
@@ -72,29 +70,13 @@ void gradient2(uint32_t depth, uint32_t *rgb_min, uint32_t *rgb_max,
 	}
 }
 
-/**************************************************************************//**
- * Build a 3-color gradient.
- * @param depth number of color levels
- * @param rgb_min first color of the gradient
- * @param rgb_mid middle color of the gradient
- * @param rgb_max last color of the gradient
- * @param colors colormap array (overwritten), must have size 3*COLOR_DEPTH + 1
- *****************************************************************************/
-void gradient3(uint32_t depth, uint32_t *rgb_min, uint32_t *rgb_mid, 
+static void gradient3(uint32_t depth, uint32_t *rgb_min, uint32_t *rgb_mid, 
 	uint32_t *rgb_max, int32_t *colors)
 {
 	gradient2(depth / 2, rgb_min, rgb_mid, colors);
 	gradient2(depth / 2, rgb_mid, rgb_max, colors + 3 * depth / 2);
 }
 
-/**************************************************************************//**
- * Write the color map to console (debug).
- * @param depth number of color levels
- * @param rgb_min first color of the gradient
- * @param rgb_mid middle color of the gradient
- * @param rgb_max last color of the gradient
- * @param colors colormap array (overwritten), must have size 3*COLOR_DEPTH + 1
- *****************************************************************************/
 void check_map(int32_t *colors)
 {
 	uint32_t i;
