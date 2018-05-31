@@ -34,7 +34,7 @@ int main(void)
 	uint8_t im_bytes[W][H];		// Image with values E[0; 255]
 	uint32_t i;
 	
-	init_image(W, H, im_float);
+	muscatupa_init_image(W, H, im_float);
 
 	// Initialize the patterns
 	for (i = 0; i < N_SCALES; i++)
@@ -51,8 +51,8 @@ int main(void)
     for (i = 0; i < N_STEPS; i++)
     {
         printf("%d/%d\n", i + 1, N_STEPS);
-        step(p, N_SCALES, W, H, im_float);
-        convert_image(W, H, im_float, im_bytes);
+        muscatupa_step(p, N_SCALES, W, H, im_float);
+        muscatupa_convert_image(W, H, im_float, im_bytes);
         gifsave_wrapper_put((uint8_t *)im_bytes);
     }
 

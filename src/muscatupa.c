@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
-#include "utils.h"
+#include <float.h>
 #include "blur.h"
 
 /**************************************************************************//**
@@ -69,7 +69,37 @@ static void update(struct pattern *p, uint32_t n, uint32_t w, uint32_t h,
  *****************************************************************************/
 static void normalize(uint32_t w, uint32_t h, float s[][h]);
 
-void init_image(uint32_t w, uint32_t h, float im[][h])
+/**************************************************************************//**
+ * Maximum value in an array.
+ * 
+ * The number of dimensions of the array doesn't matter, but to avoid warning, 
+ * don't forget to (float *)-cast the array parameter when calling the function
+ * on a multidimensional array.
+ * 
+ * @param[in] length Total array length (all dimensions)
+ * @param[in] array The array
+ * @param[out] max Maximum value
+ * 
+ * @return Index of the maximum
+ *****************************************************************************/
+static uint32_t max_array(uint32_t length, float *array, float *max);
+
+/**************************************************************************//**
+ * Minimum value in an array.
+ * 
+ * The number of dimensions of the array doesn't matter, but to avoid warning, 
+ * don't forget to (float *)-cast the array parameter when calling the function
+ * on a multidimensional array.
+ * 
+ * @param[in] length Total array length (all dimensions)
+ * @param[in] array The array
+ * @param[out] min Minimum value
+ * 
+ * @return Index of the minimum
+ *****************************************************************************/
+static uint32_t min_array(uint32_t length, float *array, float *min);
+
+void muscatupa_init_image(uint32_t w, uint32_t h, float im[][h])
 {
 	uint32_t x, y;
 	
@@ -83,7 +113,8 @@ void init_image(uint32_t w, uint32_t h, float im[][h])
 	}
 }
 
-void step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, float im[][h])
+void muscatupa_step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h,
+    float im[][h])
 {
 	float act[n][w][h];	// Activator arrays
 	float inh[n][w][w];	// Inhibitor arrays
@@ -181,7 +212,7 @@ static void normalize(uint32_t w, uint32_t h, float im[][h])
 	}
 }
 
-void convert_image(uint32_t w, uint32_t h, float im_float[][h],
+void muscatupa_convert_image(uint32_t w, uint32_t h, float im_float[][h],
     uint8_t im_bytes[][h])
 {
 	uint32_t x, y;
@@ -193,4 +224,42 @@ void convert_image(uint32_t w, uint32_t h, float im_float[][h],
 			im_bytes[x][y] = (uint8_t)((im_float[x][y] + 1.0) * 0xFF / 2.0);
 		}
 	}
+}
+
+static uint32_t max_array(uint32_t length, float *array, float *max)
+{
+	uint32_t i;
+    uint32_t i_max = 0;
+    
+	*max = FLT_MIN;
+	
+	for (i = 0; i < length; i++)
+	{
+		if (*(array + i) > *max)
+		{
+			*max = *(array + i);
+			i_max = i;
+		}
+	}
+	
+	return i_max;
+}
+
+static uint32_t min_array(uint32_t length, float *array, float *min)
+{
+	uint32_t i;
+    uint32_t i_min = 0;
+    
+	*min = FLT_MAX;
+	
+	for (i = 0; i < length; i++)
+	{
+		if (*(array + i) < *min)
+		{
+			*min = *(array + i);
+			i_min = i;
+		}
+	}
+	
+	return i_min;
 }

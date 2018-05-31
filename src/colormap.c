@@ -35,7 +35,7 @@ static void gradient2(uint32_t depth, uint32_t *rgb_min, uint32_t *rgb_max,
 static void gradient3(uint32_t depth, uint32_t *rgb_min, uint32_t *rgb_mid, 
 	uint32_t *rgb_max, int32_t *map);
  
-void build_colormap(int32_t *colors)
+void colormap_build(int32_t *colors)
 {
 	uint32_t black[3] = {0, 0, 0};
 	uint32_t white[3] = {255, 255, 255};
@@ -47,7 +47,7 @@ void build_colormap(int32_t *colors)
 	//gradient2(COLOR_DEPTH, black, white, colors);
 	gradient3(COLOR_DEPTH, black, purple, white, colors);
 	colors[3*COLOR_DEPTH] = -1; // Always terminate the map with -1
-	//check_map(colors);
+	//colormap_check(colors);
 }
 
 static void gradient2(uint32_t depth, uint32_t *rgb_min, uint32_t *rgb_max, 
@@ -77,7 +77,7 @@ static void gradient3(uint32_t depth, uint32_t *rgb_min, uint32_t *rgb_mid,
 	gradient2(depth / 2, rgb_mid, rgb_max, colors + 3 * depth / 2);
 }
 
-void check_map(int32_t *colors)
+void colormap_check(int32_t *colors)
 {
 	uint32_t i;
 	

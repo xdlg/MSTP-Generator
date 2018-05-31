@@ -29,7 +29,7 @@ struct pattern
  * @param[in] h Height of the image
  * @param[out] im Image
  *****************************************************************************/
-void init_image(uint32_t w, uint32_t h, float s[][h]);
+void muscatupa_init_image(uint32_t w, uint32_t h, float s[][h]);
 
 /**************************************************************************//**
  * One step of the main algorithm.
@@ -40,7 +40,7 @@ void init_image(uint32_t w, uint32_t h, float s[][h]);
  * @param[in] h Height of the image
  * @param[inout] im Image
  *****************************************************************************/
-void step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, 
+void muscatupa_step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, 
     float im[][h]);
 
 /**************************************************************************//**
@@ -54,7 +54,7 @@ void step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h,
  * @param[in] im_float Input image 
  * @param[out] im_bytes Output image
  *****************************************************************************/
-void convert_image(uint32_t w, uint32_t h, float im_float[][h], 
+void muscatupa_convert_image(uint32_t w, uint32_t h, float im_float[][h], 
 	uint8_t im_bytes[][h]);
 
 #endif

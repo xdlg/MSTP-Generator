@@ -19,13 +19,13 @@
  * 
  * @param[out] colors Colormap array, must have size 3*COLOR_DEPTH + 1
  *****************************************************************************/
-void build_colormap(int32_t *colors);
+void colormap_build(int32_t *colors);
 
 /**************************************************************************//**
  * Writes the color map to console (debug).
  * 
  * @param[in] colors Colormap array, must have size 3*COLOR_DEPTH + 1
  *****************************************************************************/
-void check_map(int32_t *map);
+void colormap_check(int32_t *map);
 
 #endif

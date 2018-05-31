@@ -34,7 +34,7 @@ void gifsave_wrapper_init(uint32_t w, uint32_t h)
 	int bg_index = 0;					// Background color index
 	int32_t colors[3*COLOR_DEPTH + 1];	// Color map (RGB values + term. char)
     
-	build_colormap(colors);
+	colormap_build(colors);
 	
 	// Initialize GIF
 	gs_data = newgif((void **)(&gif_image), w, h, (int *)colors, bg_index);
