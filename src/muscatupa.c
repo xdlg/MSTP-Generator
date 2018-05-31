@@ -4,61 +4,12 @@
  * Multi-scale Turing patterns based on Jonathan McCabe's work.
  *****************************************************************************/
 
-#include <stdint.h>
-#include <stdio.h>
+#include "muscatupa.h"
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
 #include "utils.h"
 #include "blur.h"
-#include "gifsave_wrapper.h"
-
-#define N_SCALES 		5 	/**< Number of Turing patterns/scales */
-#define W				300 /**< Image width */
-#define H				300	/**< Image height */
-#define N_STEPS 		100 /**< Number of timesteps to generate */
-
-/**
- * One Turing pattern/one scale.
- */
-struct pattern
-{
-	uint32_t act_r; /**< Activator radius */
-	uint32_t inh_r; /**< Inhibitor radius */
-	float sa;		/**< Small amount */
-	uint32_t wt;	/**< Weight */
-};
-
-/** 
-* Parameters of the Turing patterns.
-*/
-const uint32_t act_r_all[N_SCALES] = {100, 20, 10, 5, 1};	 	/**< Activator radii */
-const uint32_t inh_r_all[N_SCALES] = {200, 40, 20, 10, 2};	 	/**< Inhibitor radii */
-const float sa_all[N_SCALES] = {0.05, 0.04, 0.03, 0.02, 0.01}; 	/**< Small amounts */
-const uint32_t wt_all[N_SCALES] = {1, 1, 1, 1, 1}; 				/**< Weights */
-
-/**************************************************************************//**
- * Initializes the image with random values.
- * 
- * The w*h array is filled with values E[-1; 1].
- * 
- * @param[in] w Width of the image
- * @param[in] h Height of the image
- * @param[out] im Image
- *****************************************************************************/
-static void init_image(uint32_t w, uint32_t h, float s[][h]);
-
-/**************************************************************************//**
- * One step of the main algorithm.
- * 
- * @param[in] p Array of Turing patterns
- * @param[in] n Number of Turing patterns
- * @param[in] w Width of the image
- * @param[in] h Height of the image
- * @param[inout] im Image
- *****************************************************************************/
-static void step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, 
-    float im[][h]);
 
 /**************************************************************************//**
  * Computes the variation arrays for all scales.
@@ -118,60 +69,7 @@ static void update(struct pattern *p, uint32_t n, uint32_t w, uint32_t h,
  *****************************************************************************/
 static void normalize(uint32_t w, uint32_t h, float s[][h]);
 
-/**************************************************************************//**
- * Convert the image from floats to bytes.
- * 
- * The input image has values E[-1; 1] and the output E[0; 255] to write those
- * values in a grayscale picture.
- * 
- * @param[in] w Width of the image
- * @param[in] h Height of the image
- * @param[in] im_float Input image 
- * @param[out] im_bytes Output image
- *****************************************************************************/
-static void convert_image(uint32_t w, uint32_t h, float im_float[][h], 
-	uint8_t im_bytes[][h]);
-
-/**************************************************************************//**
- * Turing pattern generator.
- * 
- * @return 0 when successful
- *****************************************************************************/
-int main(void)
-{	
-	struct pattern p[N_SCALES];	// Array of Turing patterns
-	float im_float[W][H];		// Image with values E[-1; 1]
-	uint8_t im_bytes[W][H];		// Image with values E[0; 255]
-	uint32_t i;
-	
-	init_image(W, H, im_float);
-
-	// Initialize the patterns
-	for (i = 0; i < N_SCALES; i++)
-	{
-		p[i].act_r = act_r_all[i];
-		p[i].inh_r = inh_r_all[i];
-		p[i].sa = sa_all[i];
-		p[i].wt = wt_all[i];
-	}
-	
-	gifsave_wrapper_init(W, H);
-		
-    // Build frames
-    for (i = 0; i < N_STEPS; i++)
-    {
-        printf("%d/%d\n", i + 1, N_STEPS);
-        step(p, N_SCALES, W, H, im_float);
-        convert_image(W, H, im_float, im_bytes);
-        gifsave_wrapper_put((uint8_t *)im_bytes);
-    }
-
-    gifsave_wrapper_close();
- 
-	return 0;
-}
-
-static void init_image(uint32_t w, uint32_t h, float im[][h])
+void init_image(uint32_t w, uint32_t h, float im[][h])
 {
 	uint32_t x, y;
 	
@@ -185,8 +83,7 @@ static void init_image(uint32_t w, uint32_t h, float im[][h])
 	}
 }
 
-static void step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h,
-    float im[][h])
+void step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, float im[][h])
 {
 	float act[n][w][h];	// Activator arrays
 	float inh[n][w][w];	// Inhibitor arrays
@@ -284,8 +181,8 @@ static void normalize(uint32_t w, uint32_t h, float im[][h])
 	}
 }
 
-static void convert_image(uint32_t w, uint32_t h, float im_float[][h], 
-	uint8_t im_bytes[][h])
+void convert_image(uint32_t w, uint32_t h, float im_float[][h],
+    uint8_t im_bytes[][h])
 {
 	uint32_t x, y;
 	
