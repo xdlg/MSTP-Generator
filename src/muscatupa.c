@@ -29,7 +29,7 @@
 #define N_SCALES 		5 	/**< Number of Turing patterns/scales */
 #define W				300 /**< Image width */
 #define H				300	/**< Image height */
-#define N_STEPS 		400 /**< Number of timesteps to generate */
+#define N_STEPS 		100 /**< Number of timesteps to generate */
 
 #define ANIMATE 		1 	/**< 0 to save only the last generated picture */
 
@@ -199,9 +199,9 @@ void step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, float im[][h],
 	// Generate the activator and inhibitor arrays
 	for (i = 0; i < n; i++)
 	{
-		blur(w, h, im, act[i], (p+i)->act_r, (p+i)->wt);
+		blur(w, h, (p+i)->act_r, (p+i)->wt, im, act[i]);
 		symmetrize(head_sym[i], w, act[i]);
-		blur(w, h, im, inh[i], (p+i)->inh_r, (p+i)->wt);
+		blur(w, h, (p+i)->inh_r, (p+i)->wt, im, inh[i]);
 		symmetrize(head_sym[i], w, inh[i]);
 	}
 	

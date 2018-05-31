@@ -1,59 +1,52 @@
 /**************************************************************************//**
  * @file
+ * 
  * Fast box blur.
+ * 
  * Box blurring of an image with separate horizontal and vertical passes,
  * re-using previous calulations to go faster. The algorithm is based on 
  * http://www.blackpawn.com/texts/blur/default.html, with additional boundary 
  * checks.
  *****************************************************************************/
-
-/******************************************************************************
- * #include
- *****************************************************************************/
+ 
 #include "blur.h"
 
-/******************************************************************************
- * Private variables
- *****************************************************************************/
- 
-/******************************************************************************
- * Private functions
- *****************************************************************************/
-static void blur_x(uint32_t w, uint32_t h, float s[][h], float d[][h], 
-	uint32_t r, uint32_t wt);
-static void blur_y(uint32_t w, uint32_t h, float s[][h], float d[][h], 
-	uint32_t r, uint32_t wt);
-
 /**************************************************************************//**
- * Box blur main function.
- * Calls the horizontal and vertical blurring functions.
- * @param w width of the image
- * @param h height of the image
- * @param s source image
- * @param d destination image (overwritten)
- * @param r blurring radius in pixels
- * @param wt weight
+ * Horizontal box blur (moving average of the picture, row by row).
+ * 
+ * @param[in] w width of the image
+ * @param[in] h height of the image
+ * @param[in] r blurring radius in pixels
+ * @param[in] wt weight
+ * @param[in] s source image
+ * @param[out] d destination image
  *****************************************************************************/
-void blur(uint32_t w, uint32_t h, float s[][h], float d[][h], uint32_t r,
-	uint32_t wt)
+static void blur_x(uint32_t w, uint32_t h, uint32_t r, uint32_t wt,
+    float s[][h], float d[][h]);
+    
+/**************************************************************************//**
+ * Vertical box blur (moving average of the picture, column by column).
+ * 
+ * @param[in] w width of the image
+ * @param[in] h height of the image
+ * @param[in] r blurring radius in pixels
+ * @param[in] wt weight
+ * @param[in] s source image
+ * @param[out] d destination image
+ *****************************************************************************/
+static void blur_y(uint32_t w, uint32_t h, uint32_t r, uint32_t wt,
+    float s[][h], float d[][h]);
+
+void blur(uint32_t w, uint32_t h, uint32_t r, uint32_t wt, float s[][h],
+    float d[][h])
 {
 	float temp[w][h];
-	blur_x(w, h, s, temp, r, wt);
-	blur_y(w, h, temp, d, r, wt);
+	blur_x(w, h, r, wt, s, temp);
+	blur_y(w, h, r, wt, temp, d);
 }
 
-/**************************************************************************//**
- * Horizontal box blur.
- * This is just a moving average of the picture, row by row.
- * @param w width of the image
- * @param h height of the image
- * @param s source image
- * @param d destination image (overwritten)
- * @param r blurring radius in pixels
- * @param wt weight
- *****************************************************************************/
-void blur_x(uint32_t w, uint32_t h, float s[][h], float d[][h], uint32_t r,
-	uint32_t wt)
+static void blur_x(uint32_t w, uint32_t h, uint32_t r, uint32_t wt,
+    float s[][h], float d[][h])
 {	
 	float sum;
 	uint32_t x, y, span;
@@ -91,18 +84,8 @@ void blur_x(uint32_t w, uint32_t h, float s[][h], float d[][h], uint32_t r,
 	}
 }
 
-/**************************************************************************//**
- * Vertical box blur.
- * This is just a moving average of the picture, column by column.
- * @param w width of the image
- * @param h height of the image
- * @param s source image
- * @param d destination image (overwritten)
- * @param r blurring radius in pixels
- * @param wt weight
- *****************************************************************************/
-void blur_y(uint32_t w, uint32_t h, float s[][h], float d[][h], uint32_t r,
-	uint32_t wt)
+static void blur_y(uint32_t w, uint32_t h, uint32_t r, uint32_t wt,
+    float s[][h], float d[][h])
 {	
 	// See the comments in blur_x, it's exactly the same but working on the
 	// columns instead of the rows.
