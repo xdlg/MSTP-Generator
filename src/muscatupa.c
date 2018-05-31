@@ -1,11 +1,9 @@
 /**************************************************************************//**
  * @file
+ * 
  * Multi-scale Turing patterns based on Jonathan McCabe's work.
  *****************************************************************************/
 
-/******************************************************************************
- * #include
- *****************************************************************************/
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -17,12 +15,9 @@
 #include "blur.h"
 #include "symmetry.h"
 
-/******************************************************************************
- * #define
- *****************************************************************************/
-#define N_REPEATS 		0 	/**< 0: loop the gif animation */
-#define T_FRAME 		4 	/**< *10 ms: timespan of a gif frame */
-#define TRANSPARENCY	-1 	/**< -1: no transparency */
+#define N_REPEATS 		0 	/**< 0: Loop the gif animation */
+#define T_FRAME 		4 	/**< *10 ms: Timespan of a gif frame */
+#define TRANSPARENCY	-1 	/**< -1: No transparency */
 #define DISPOSAL 		1 	/**< Don't really know the influence of that */
 #define PATH_TO_GIF		"0.gif"
 
@@ -33,9 +28,6 @@
 
 #define ANIMATE 		1 	/**< 0 to save only the last generated picture */
 
-/******************************************************************************
- * Types and structures
- *****************************************************************************/
 /**
  * One Turing pattern/one scale.
  */
@@ -48,9 +40,6 @@ struct pattern
 	uint32_t s;		/**< Symmetry order */
 };
 
-/******************************************************************************
- * Private variables
- *****************************************************************************/
 /** 
 * Parameters of the Turing patterns.
 */
@@ -60,26 +49,115 @@ const float sa_all[N_SCALES] = {0.05, 0.04, 0.03, 0.02, 0.01}; 	/**< Small amoun
 const uint32_t wt_all[N_SCALES] = {1, 1, 1, 1, 1}; 				/**< Weights */
 const uint32_t s_all[N_SCALES] = {3, 2, 2, 2, 2}; 				/**< Symmetry orders */
 
-/******************************************************************************
- * Private functions
+/**************************************************************************//**
+ * Initializes the image with random values.
+ * 
+ * The w*h array is filled with values E[-1; 1].
+ * 
+ * @param[in] w Width of the image
+ * @param[in] h Height of the image
+ * @param[out] im Image
  *****************************************************************************/
-void init_image(uint32_t w, uint32_t h, float s[][h]);
-void step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, float im[][h],
-	struct sym **head_sym);
-void compute_var(uint32_t n, uint32_t w, uint32_t h, float act[][w][h], 
+static void init_image(uint32_t w, uint32_t h, float s[][h]);
+
+/**************************************************************************//**
+ * One step of the main algorithm.
+ * 
+ * @param[in] p Array of Turing patterns
+ * @param[in] n Number of Turing patterns
+ * @param[in] w Width of the image
+ * @param[in] h Height of the image
+ * @param[in] Linked list of symmetries
+ * @param[inout] im Image
+ *****************************************************************************/
+static void step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, 
+    struct sym **head_sym, float im[][h]);
+
+/**************************************************************************//**
+ * Computes the variation arrays for all scales.
+ * 
+ * The variation is simply |activator[x][y] - inhibitor[x][y]| for each pixel.
+ * Normally there should be an averaging over a radius, but it's simpler to 
+ * code that for a single-pixel radius and in theory it gives better pictures.
+ * 
+ * @param[in] n Number of Turing patterns
+ * @param[in] w Width of the image
+ * @param[in] h Height of the image
+ * @param[in] act Activator arrays
+ * @param[in] inh Inhibitor arrays
+ * @param[out] var Variation arrays
+ *****************************************************************************/
+static void compute_var(uint32_t n, uint32_t w, uint32_t h, float act[][w][h], 
 	float inh[][w][h], float var[][w][h]);
-void find_best_scale(uint32_t n, uint32_t w, uint32_t h, float var[][w][h],
-	uint32_t best_scale[][h]);
-void update(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, 
-	float im[][h], float act[][w][h], float inh[][w][h], 
-	uint32_t best_scale[][h]);
-void normalize(uint32_t w, uint32_t h, float s[][h]);
-void convert_image(uint32_t w, uint32_t h, float im_float[][h], 
+
+/**************************************************************************//**
+ * Finds which scale has the smallest variation.
+ * 
+ * @param[in] n Number of Turing patterns
+ * @param[in] w Width of the image
+ * @param[in] h Height of the image
+ * @param[in] var Variation arrays 
+ * @param[out] best_scale Scale with the smallest variation
+ *****************************************************************************/
+static void find_best_scale(uint32_t n, uint32_t w, uint32_t h,
+    float var[][w][h], uint32_t best_scale[][h]);
+
+/**************************************************************************//**
+ * Updates the image.
+ * 
+ * Each pixel of the image is increased/decreased by a small amount depending
+ * on the activator and inhibitor value at those coordinates. This function is
+ * normally called with the parameters of the smallest-variation scale.
+ * 
+ * @param[in] p Array of Turing patterns
+ * @param[in] n Number of Turing patterns
+ * @param[in] w Width of the image
+ * @param[in] h Height of the image
+ * @param[in] act Activator arrays
+ * @param[in] inh Inhibitor arrays
+ * @param[in] best_scale Scale with the smallest variation
+ * @param[inout] im Image
+ *****************************************************************************/
+static void update(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, 
+	float act[][w][h], float inh[][w][h], uint32_t best_scale[][h],
+    float im[][h]);
+
+/**************************************************************************//**
+ * Normalizes the image back to the interval [-1; 1].
+ * 
+ * @param[in] w Width of the image
+ * @param[in] h Height of the image
+ * @param[inout] im Image
+ *****************************************************************************/
+static void normalize(uint32_t w, uint32_t h, float s[][h]);
+
+/**************************************************************************//**
+ * Convert the image from floats to bytes.
+ * 
+ * The input image has values E[-1; 1] and the output E[0; 255] to write those
+ * values in a grayscale picture.
+ * 
+ * @param[in] w Width of the image
+ * @param[in] h Height of the image
+ * @param[in] im_float Input image 
+ * @param[out] im_bytes Output image
+ *****************************************************************************/
+static void convert_image(uint32_t w, uint32_t h, float im_float[][h], 
 	uint8_t im_bytes[][h]);
-uint32_t write_gif(unsigned char *gif_image, uint32_t n_bytes);
+
+/**************************************************************************//**
+ * Writes image to a gif file.
+ * 
+ * @param[in] gif_image The gifsave89 buffer
+ * @param[in] n_bytes Number of bytes to write 
+ * 
+ * @return Number of written bytes
+ *****************************************************************************/
+static uint32_t write_gif(unsigned char *gif_image, uint32_t n_bytes);
 
 /**************************************************************************//**
  * Turing pattern generator.
+ * 
  * @return 0 when successful
  *****************************************************************************/
 int main(void)
@@ -129,7 +207,7 @@ int main(void)
 		for (i = 0; i < N_STEPS; i++)
 		{
 			printf("%d/%d\n", i+1, N_STEPS);
-			step(p, N_SCALES, W, H, im_float, head_sym);
+			step(p, N_SCALES, W, H, head_sym, im_float);
 			if (ANIMATE)
 			{
 				convert_image(W, H, im_float, im_bytes);
@@ -157,14 +235,7 @@ int main(void)
 	return 0;
 }
 
-/**************************************************************************//**
- * Initialize the image with random values.
- * The w*h array is filled with values E[-1; 1].
- * @param w width of the image
- * @param h height of the image
- * @param im image (overwritten)
- *****************************************************************************/
-void init_image(uint32_t w, uint32_t h, float im[][h])
+static void init_image(uint32_t w, uint32_t h, float im[][h])
 {
 	uint32_t x, y;
 	
@@ -178,17 +249,8 @@ void init_image(uint32_t w, uint32_t h, float im[][h])
 	}
 }
 
-/**************************************************************************//**
- * One step of the main algorithm.
- * @param p array of Turing patterns
- * @param n number of Turing patterns
- * @param w width of the image
- * @param h height of the image
- * @param im image (overwritten)
- * @param head_sym linked list of symmetries
- *****************************************************************************/
-void step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, float im[][h],
-	struct sym **head_sym)
+static void step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h,
+    struct sym **head_sym, float im[][h])
 {
 	float act[n][w][h];	// Activator arrays
 	float inh[n][w][w];	// Inhibitor arrays
@@ -207,23 +269,11 @@ void step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, float im[][h],
 	
 	compute_var(n, w, h, act, inh, var);
 	find_best_scale(n, w, h, var, best_scale);
-	update(p, n, w, h, im, act, inh, best_scale);
+	update(p, n, w, h, act, inh, best_scale, im);
 	normalize(w, h, im);
 }
 
-/**************************************************************************//**
- * Compute the variation arrays for all scales.
- * The variation is simply |activator[x][y] - inhibitor[x][y]| for each pixel.
- * Normally there should be an averaging over a radius, but it's simpler to 
- * code that for a single-pixel radius and in theory it gives better pictures.
- * @param n number of Turing patterns
- * @param w width of the image
- * @param h height of the image
- * @param act activator arrays
- * @param inh inhibitor arrays
- * @param var variation arrays (overwritten)
- *****************************************************************************/
-void compute_var(uint32_t n, uint32_t w, uint32_t h, float act[][w][h], 
+static void compute_var(uint32_t n, uint32_t w, uint32_t h, float act[][w][h], 
 	float inh[][w][h], float var[][w][h])
 {
 	uint32_t x, y;
@@ -241,16 +291,8 @@ void compute_var(uint32_t n, uint32_t w, uint32_t h, float act[][w][h],
 	}
 }
 
-/**************************************************************************//**
- * Find which scale has the smallest variation.
- * @param n number of Turing patterns
- * @param w width of the image
- * @param h height of the image
- * @param var variation arrays 
- * @param best_scale scale with the smallest variation (overwritten)
- *****************************************************************************/
-void find_best_scale(uint32_t n, uint32_t w, uint32_t h, float var[][w][h],
-	uint32_t best_scale[][h])
+static void find_best_scale(uint32_t n, uint32_t w, uint32_t h,
+    float var[][w][h], uint32_t best_scale[][h])
 {
 	float lst_var[w][h];
 	uint32_t i, x, y;
@@ -274,23 +316,9 @@ void find_best_scale(uint32_t n, uint32_t w, uint32_t h, float var[][w][h],
 	}
 }
 
-/**************************************************************************//**
- * Update the image.
- * Each pixel of the image is increased/decreased by a small amount depending
- * on the activator and inhibitor value at those coordinates. This function is
- * normally called with the parameters of the smallest-variation scale.
- * @param p array of Turing patterns
- * @param n number of Turing patterns
- * @param w width of the image
- * @param h height of the image
- * @param im image (overwritten)
- * @param act activator arrays
- * @param inh inhibitor arrays
- * @param best_scale scale with the smallest variation
- *****************************************************************************/
-void update(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, 
-	float im[][h], float act[][w][h], float inh[][w][h], 
-	uint32_t best_scale[][h])
+static void update(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, 
+	float act[][w][h], float inh[][w][h], uint32_t best_scale[][h],
+    float im[][h])
 {
 	uint32_t i, x, y;
 	
@@ -304,13 +332,7 @@ void update(struct pattern *p, uint32_t n, uint32_t w, uint32_t h,
 	}
 }
 
-/**************************************************************************//**
- * Normalize the image back to the interval [-1; 1].
- * @param w width of the image
- * @param h height of the image
- * @param im image (overwritten)
- *****************************************************************************/
-void normalize(uint32_t w, uint32_t h, float im[][h])
+static void normalize(uint32_t w, uint32_t h, float im[][h])
 {
 	float max, min, range;
 	uint32_t x, y;
@@ -328,16 +350,7 @@ void normalize(uint32_t w, uint32_t h, float im[][h])
 	}
 }
 
-/**************************************************************************//**
- * Convert the image from floats to bytes.
- * The input image has values E[-1; 1] and the output E[0; 255] to write those
- * values in a grayscale picture.
- * @param w width of the image
- * @param h height of the image
- * @param im_float input image 
- * @param im_bytes output image (overwritten)
- *****************************************************************************/
-void convert_image(uint32_t w, uint32_t h, float im_float[][h], 
+static void convert_image(uint32_t w, uint32_t h, float im_float[][h], 
 	uint8_t im_bytes[][h])
 {
 	uint32_t x, y;
@@ -351,13 +364,7 @@ void convert_image(uint32_t w, uint32_t h, float im_float[][h],
 	}
 }
 
-/**************************************************************************//**
- * Write image to a gif file.
- * @param gif_image the gifsave89 buffer
- * @param n_bytes number of bytes to write 
- * @return number of written bytes
- *****************************************************************************/
-uint32_t write_gif(unsigned char *gif_image, uint32_t n_bytes) 
+static uint32_t write_gif(unsigned char *gif_image, uint32_t n_bytes) 
 {
 	FILE *f = fopen(PATH_TO_GIF, "wb");
 	uint32_t n_written = 0;

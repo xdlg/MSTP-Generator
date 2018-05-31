@@ -14,12 +14,12 @@
 /**************************************************************************//**
  * Horizontal box blur (moving average of the picture, row by row).
  * 
- * @param[in] w width of the image
- * @param[in] h height of the image
- * @param[in] r blurring radius in pixels
- * @param[in] wt weight
- * @param[in] s source image
- * @param[out] d destination image
+ * @param[in] w Width of the image
+ * @param[in] h Height of the image
+ * @param[in] r Blurring radius in pixels
+ * @param[in] wt Weight
+ * @param[in] s Source image
+ * @param[out] d Destination image
  *****************************************************************************/
 static void blur_x(uint32_t w, uint32_t h, uint32_t r, uint32_t wt,
     float s[][h], float d[][h]);
@@ -27,12 +27,12 @@ static void blur_x(uint32_t w, uint32_t h, uint32_t r, uint32_t wt,
 /**************************************************************************//**
  * Vertical box blur (moving average of the picture, column by column).
  * 
- * @param[in] w width of the image
- * @param[in] h height of the image
- * @param[in] r blurring radius in pixels
- * @param[in] wt weight
- * @param[in] s source image
- * @param[out] d destination image
+ * @param[in] w Width of the image
+ * @param[in] h Height of the image
+ * @param[in] r Blurring radius in pixels
+ * @param[in] wt Weight
+ * @param[in] s Source image
+ * @param[out] d Destination image
  *****************************************************************************/
 static void blur_y(uint32_t w, uint32_t h, uint32_t r, uint32_t wt,
     float s[][h], float d[][h]);
