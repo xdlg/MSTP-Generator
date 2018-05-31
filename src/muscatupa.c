@@ -4,29 +4,19 @@
  * Multi-scale Turing patterns based on Jonathan McCabe's work.
  *****************************************************************************/
 
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <float.h>
 #include <math.h>
-#include "gifsave/gifsave89.c"
 #include "utils.h"
-#include "colormap.h"
 #include "blur.h"
-
-#define N_REPEATS 		0 	/**< 0: Loop the gif animation */
-#define T_FRAME 		4 	/**< *10 ms: Timespan of a gif frame */
-#define TRANSPARENCY	-1 	/**< -1: No transparency */
-#define DISPOSAL 		1 	/**< Don't really know the influence of that */
-#define PATH_TO_GIF		"0.gif"
+#include "gifsave_wrapper.h"
 
 #define N_SCALES 		5 	/**< Number of Turing patterns/scales */
 #define W				300 /**< Image width */
 #define H				300	/**< Image height */
 #define N_STEPS 		100 /**< Number of timesteps to generate */
-
-#define ANIMATE 		1 	/**< 0 to save only the last generated picture */
 
 /**
  * One Turing pattern/one scale.
@@ -143,37 +133,18 @@ static void convert_image(uint32_t w, uint32_t h, float im_float[][h],
 	uint8_t im_bytes[][h]);
 
 /**************************************************************************//**
- * Writes image to a gif file.
- * 
- * @param[in] gif_image The gifsave89 buffer
- * @param[in] n_bytes Number of bytes to write 
- * 
- * @return Number of written bytes
- *****************************************************************************/
-static uint32_t write_gif(unsigned char *gif_image, uint32_t n_bytes);
-
-/**************************************************************************//**
  * Turing pattern generator.
  * 
  * @return 0 when successful
  *****************************************************************************/
 int main(void)
-{
-	// gifsave89 variables
-	void *gs_data = NULL; 				// gifsave89 main variable
-	int bg_index = 0;					// Background color index
-	int32_t colors[3*COLOR_DEPTH + 1];	// Color map (RGB values + term. char)
-	uint32_t n_bytes = 0;				// Number of bytes in the gif
-	unsigned char *gif_image = NULL;	// Pointer to the buffer
-	
+{	
 	struct pattern p[N_SCALES];	// Array of Turing patterns
 	float im_float[W][H];		// Image with values E[-1; 1]
 	uint8_t im_bytes[W][H];		// Image with values E[0; 255]
-	
 	uint32_t i;
 	
 	init_image(W, H, im_float);
-	build_colormap(colors);
 
 	// Initialize the patterns
 	for (i = 0; i < N_SCALES; i++)
@@ -184,43 +155,18 @@ int main(void)
 		p[i].wt = wt_all[i];
 	}
 	
-	// Initialize GIF
-	gs_data = newgif((void **)(&gif_image), W, H, (int *)colors, bg_index);
-	
-	if (gs_data != NULL) 
-	{ 
-		// Initialize animation
-		if (ANIMATE) 
-		{
-			animategif(gs_data, N_REPEATS, T_FRAME, TRANSPARENCY, DISPOSAL);
-		}
+	gifsave_wrapper_init(W, H);
 		
-		// Build frames
-		for (i = 0; i < N_STEPS; i++)
-		{
-			printf("%d/%d\n", i+1, N_STEPS);
-			step(p, N_SCALES, W, H, im_float);
-			if (ANIMATE)
-			{
-				convert_image(W, H, im_float, im_bytes);
-				putgif(gs_data, im_bytes);
-			}
-		}
+    // Build frames
+    for (i = 0; i < N_STEPS; i++)
+    {
+        printf("%d/%d\n", i + 1, N_STEPS);
+        step(p, N_SCALES, W, H, im_float);
+        convert_image(W, H, im_float, im_bytes);
+        gifsave_wrapper_put((uint8_t *)im_bytes);
+    }
 
-		if (!ANIMATE)
-		{
-			convert_image(W, H, im_float, im_bytes);
-			putgif(gs_data, im_bytes);
-		}
-		n_bytes = endgif(gs_data); 
-	}
-	
-	// Write GIF to file
-	if (n_bytes > 0) 
-	{
-		write_gif(gif_image, n_bytes);
-		free(gif_image); 
-	}
+    gifsave_wrapper_close();
  
 	return 0;
 }
@@ -350,18 +296,4 @@ static void convert_image(uint32_t w, uint32_t h, float im_float[][h],
 			im_bytes[x][y] = (uint8_t)((im_float[x][y] + 1.0) * 0xFF / 2.0);
 		}
 	}
-}
-
-static uint32_t write_gif(unsigned char *gif_image, uint32_t n_bytes) 
-{
-	FILE *f = fopen(PATH_TO_GIF, "wb");
-	uint32_t n_written = 0;
-	
-	if (f != NULL) 
-	{
-		n_written = fwrite(gif_image, sizeof(unsigned char), n_bytes, f);
-		fclose(f); 
-	}
-	
-	return n_written;
 }
