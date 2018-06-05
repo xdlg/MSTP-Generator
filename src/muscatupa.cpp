@@ -19,28 +19,6 @@
  *****************************************************************************/
 static void normalize(uint32_t w, uint32_t h, float_t *im);
 
-/**************************************************************************//**
- * Finds the maximum value in an array.
- * 
- * @param[in] length Array length
- * @param[in] array The array
- * @param[out] max Maximum value
- * 
- * @return Index of the maximum
- *****************************************************************************/
-static uint32_t max_array(uint32_t length, float_t *array, float_t *max);
-
-/**************************************************************************//**
- * Finds the minimum value in an array.
- * 
- * @param[in] length Array length
- * @param[in] array The array
- * @param[out] min Minimum value
- * 
- * @return Index of the minimum
- *****************************************************************************/
-static uint32_t min_array(uint32_t length, float_t *array, float_t *min);
-
 void muscatupa_init_image(uint32_t w, uint32_t h, float_t *im)
 {
 	uint32_t i;
@@ -105,53 +83,26 @@ void muscatupa_step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h,
 
 static void normalize(uint32_t w, uint32_t h, float_t *im)
 {
-	float_t max, min, range;
+	float_t max = FLT_MIN;
+    float_t min = FLT_MAX;
+    float_t range;
 	uint32_t i;
-	
-	max_array(w*h, im, &max);
-	min_array(w*h, im, &min);
+    
+    for (i = 0; i < w*h; i++)
+	{
+		if (im[i] > max)
+		{
+			max = im[i];
+		}
+        if (im[i] < min)
+		{
+			min = im[i];
+		}
+	}
 	range = max - min;
 	
 	for (i = 0; i < w*h; i++)
 	{
 		im[i] = (im[i] - min)/range;
 	}
-}
-
-static uint32_t max_array(uint32_t length, float_t *array, float_t *max)
-{
-	uint32_t i;
-    uint32_t i_max = 0;
-    
-	*max = FLT_MIN;
-	
-	for (i = 0; i < length; i++)
-	{
-		if (*(array + i) > *max)
-		{
-			*max = *(array + i);
-			i_max = i;
-		}
-	}
-	
-	return i_max;
-}
-
-static uint32_t min_array(uint32_t length, float_t *array, float_t *min)
-{
-	uint32_t i;
-    uint32_t i_min = 0;
-    
-	*min = FLT_MAX;
-	
-	for (i = 0; i < length; i++)
-	{
-		if (*(array + i) < *min)
-		{
-			*min = *(array + i);
-			i_min = i;
-		}
-	}
-	
-	return i_min;
 }
