@@ -1,31 +1,23 @@
 /**************************************************************************//**
  * @file
  * 
- * Colormap generation for gifsave89.
+ * Color mapping for SDL.
  *****************************************************************************/
 
 #ifndef COLORMAP_H
 #define COLORMAP_H
 
 #include <stdint.h>
-
-#define COLOR_DEPTH 256 /**< Number of color levels */
-
-/**************************************************************************//**
- * Builds the RGB colormap for gifsave89.
- * 
- * Modify the called function to select another color scheme, transparently for 
- * the main program.
- * 
- * @param[out] colors Colormap array, must have size 3*COLOR_DEPTH + 1
- *****************************************************************************/
-void colormap_build(int32_t *colors);
+#include <math.h>
 
 /**************************************************************************//**
- * Writes the color map to console (debug).
+ * Color mapping for SDL pixel format RGB888.
  * 
- * @param[in] colors Colormap array, must have size 3*COLOR_DEPTH + 1
+ * @param[in] w Image width
+ * @param[in] h Image height
+ * @param[in] s Source image (pixels in the interval [0; 1])
+ * @param[out] d Destination image (format RGB888)
  *****************************************************************************/
-void colormap_check(int32_t *map);
+void colormap_RGB888(uint32_t w, uint32_t h, float_t *s, uint32_t *d);
 
 #endif
