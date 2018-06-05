@@ -1,4 +1,4 @@
 *.o
-*.out
-*.gif
+bin/
+build/
 doc/
