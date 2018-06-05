@@ -62,12 +62,6 @@ void muscatupa_step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h,
     uint32_t best_scale[w*h];
     uint32_t i, j;
     
-    // Find something better asap...
-    for (j = 0; j < w*h; j++)
-    {
-        var[j] = FLT_MAX;
-    }
-    
     // For each scale...
     for (i = 0; i < n; i++)
     {
@@ -78,11 +72,13 @@ void muscatupa_step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h,
         // For each pixel...
         for (j = 0; j < w*h; j++)
         {
-            // Update the variation array only if the variation for this pixel
-            // is smaller than the one already stored. This way, the variation
+            // Update the variation array if the variation for this pixel is
+            // smaller than the one already stored. This way, the variation
             // array always stores the smallest variation.
+            // When processing the first scale (i == 0), the variation array
+            // is always updated, so we don't need to initialize it beforehand.
             var_new = act[j] - inh[j];
-            if (fabs(var_new) < fabs(var[j]))
+            if ((fabs(var_new) < fabs(var[j])) || (i == 0))
             {
                 var[j] = var_new;
                 best_scale[j] = i;
