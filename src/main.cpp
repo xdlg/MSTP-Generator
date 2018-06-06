@@ -4,13 +4,12 @@
  * Turing pattern generation.
  *****************************************************************************/
 
+#include <cstdint>
+#include <cstdlib>
+#include <cmath>
 #include <iostream>
-#include <stdint.h>
-#include <math.h>
-#include <stdlib.h>
 #include <SDL.h>
-#include <chrono>
-#include "muscatupa.h"
+#include "blind_quarter.h"
 #include "colormap.h"
 
 #define N_SCALES    5   /**< Number of Turing patterns/scales */
@@ -40,12 +39,12 @@ const uint32_t wt_all[N_SCALES] = {1, 1, 1, 1, 1};
  * 
  * @return false if no error
  *****************************************************************************/
-static bool parse_args(int argc, char** argv, uint32_t* width, uint32_t* height);
+static bool parse_args(int argc, char** argv, size_t* width, size_t* height);
 
 int main(int argc, char** argv)
 {   
-    uint32_t width;
-    uint32_t height;
+    size_t width;
+    size_t height;
     bool parsing_error = parse_args(argc, argv, &width, &height);
     
     if (parsing_error)
@@ -61,7 +60,7 @@ int main(int argc, char** argv)
     
     // Initialize the patterns
     struct pattern p[N_SCALES];
-	for (uint32_t i = 0; i < N_SCALES; i++)
+	for (size_t i = 0; i < N_SCALES; i++)
 	{
 		p[i].act_r = act_r_all[i];
 		p[i].inh_r = inh_r_all[i];
@@ -116,7 +115,7 @@ int main(int argc, char** argv)
     return 0;
 }
 
-static bool parse_args(int argc, char** argv, uint32_t* width, uint32_t* height)
+static bool parse_args(int argc, char** argv, size_t* width, size_t* height)
 {
     bool error = false;
     

@@ -4,11 +4,12 @@
  * Multi-scale Turing patterns based on Jonathan McCabe's work.
  *****************************************************************************/
 
-#ifndef MUSCATUPA_H
-#define MUSCATUPA_H
+#ifndef BLIND_QUARTER_H
+#define BLIND_QUARTER_H
 
-#include <stdint.h>
-#include <math.h>
+#include <cstdint>
+#include <cstdlib>
+#include <cmath>
 
 /**
  * One Turing pattern/one scale.
@@ -28,7 +29,7 @@ struct pattern
  * @param[in] h Image height
  * @param[out] im Image (values in the interval [0; 1])
  *****************************************************************************/
-void muscatupa_init_image(uint32_t w, uint32_t h, float_t* im);
+void muscatupa_init_image(size_t w, size_t h, float_t* im);
 
 /**************************************************************************//**
  * One step of the main algorithm.
@@ -39,7 +40,7 @@ void muscatupa_init_image(uint32_t w, uint32_t h, float_t* im);
  * @param[in] h Image height
  * @param[inout] im Image (values in the interval [0; 1])
  *****************************************************************************/
-void muscatupa_step(struct pattern* p, uint32_t n, uint32_t w, uint32_t h, 
+void muscatupa_step(struct pattern* p, uint32_t n, size_t w, size_t h, 
     float_t* im);
 
 #endif

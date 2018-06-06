@@ -21,7 +21,7 @@
  * @param[in] s Source image
  * @param[out] d Destination image
  *****************************************************************************/
-static void blur_x(uint32_t w, uint32_t h, uint32_t r, uint32_t wt, float_t* s,
+static void blur_x(size_t w, size_t h, uint32_t r, uint32_t wt, float_t* s,
     float_t* d);
     
 /**************************************************************************//**
@@ -34,11 +34,10 @@ static void blur_x(uint32_t w, uint32_t h, uint32_t r, uint32_t wt, float_t* s,
  * @param[in] s Source image
  * @param[out] d Destination image
  *****************************************************************************/
-static void blur_y(uint32_t w, uint32_t h, uint32_t r, uint32_t wt, float_t* s,
+static void blur_y(size_t w, size_t h, uint32_t r, uint32_t wt, float_t* s,
     float_t* d);
 
-void blur(uint32_t w, uint32_t h, uint32_t r, uint32_t wt, float_t* s,
-    float_t* d)
+void blur(size_t w, size_t h, uint32_t r, uint32_t wt, float_t* s, float_t* d)
 {
 	float_t* temp = new float_t[w*h];
     
@@ -48,19 +47,19 @@ void blur(uint32_t w, uint32_t h, uint32_t r, uint32_t wt, float_t* s,
     delete [] temp;
 }
 
-static void blur_x(uint32_t w, uint32_t h, uint32_t r, uint32_t wt, float_t* s,
+static void blur_x(size_t w, size_t h, uint32_t r, uint32_t wt, float_t* s,
     float_t* d)
 {	   
 	float_t sum;
-	uint32_t x, y, span;
+	uint32_t span;
 	
-	for (y = 0; y < h; y++)
+	for (size_t y = 0; y < h; y++)
 	{
 		sum = 0.0;
 		
 		// In the blurred picture, the first pixel of each row is the average
 		// of the source pixels between x = 0 and x = r.
-		for (x = 0; x <= r; x++)
+		for (size_t x = 0; x <= r; x++)
 		{
 			sum += s[x + y*w];
 		}
@@ -75,7 +74,7 @@ static void blur_x(uint32_t w, uint32_t h, uint32_t r, uint32_t wt, float_t* s,
 		// always gives a positive result when doing the comparison. I think
 		// casting from unsigned to signed is compiler-dependent, though, so
 		// this might not be so safe.
-		for (x = 1; x < w; x++)
+		for (size_t x = 1; x < w; x++)
 		{
 			sum += (x + r) < w ? s[x + r + y*w] : 0;
 			sum -= (int32_t)(x - r - 1) >= 0 ? s[x - r - 1 + y*w] : 0;
@@ -88,25 +87,25 @@ static void blur_x(uint32_t w, uint32_t h, uint32_t r, uint32_t wt, float_t* s,
 	}
 }
 
-static void blur_y(uint32_t w, uint32_t h, uint32_t r, uint32_t wt, float_t* s, 
+static void blur_y(size_t w, size_t h, uint32_t r, uint32_t wt, float_t* s, 
     float_t* d)
 {	
 	// See the comments in blur_x, it's exactly the same but working on the
 	// columns instead of the rows.
 	float_t sum;
-	uint32_t x, y, span;
+	uint32_t span;
 	
-	for (x = 0; x < w; x++)
+	for (size_t x = 0; x < w; x++)
 	{
 		sum = 0.0;
 		
-		for (y = 0; y <= r; y++)
+		for (size_t y = 0; y <= r; y++)
 		{
 			sum += s[x + y*w];
 		}
 		d[x] = (float_t)wt * sum / (float_t)(r + 1);
 		
-		for (y = 1; y < h; y++)
+		for (size_t y = 1; y < h; y++)
 		{
 			sum += (y + r) < h ? s[x + (y + r)*w] : 0;
 			sum -= (int32_t)(y - r - 1) >= 0 ? s[x + (y - r - 1)*w] : 0;

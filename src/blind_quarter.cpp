@@ -4,10 +4,9 @@
  * Multi-scale Turing patterns based on Jonathan McCabe's work.
  *****************************************************************************/
 
-#include "muscatupa.h"
-#include <stdlib.h>
-#include <time.h>
-#include <float.h>
+#include "blind_quarter.h"
+#include <ctime>
+#include <cfloat>
 #include "blur.h"
 
 /**************************************************************************//**
@@ -17,11 +16,11 @@
  * @param[in] h Image height
  * @param[inout] im Image
  *****************************************************************************/
-static void normalize(uint32_t w, uint32_t h, float_t* im);
+static void normalize(size_t w, size_t h, float_t* im);
 
-void muscatupa_init_image(uint32_t w, uint32_t h, float_t* im)
+void muscatupa_init_image(size_t w, size_t h, float_t* im)
 {
-	uint32_t i;
+	size_t i;
 	
 	srand(time(NULL));
 	for (i = 0; i < w*h; i++)
@@ -30,7 +29,7 @@ void muscatupa_init_image(uint32_t w, uint32_t h, float_t* im)
 	}
 }
 
-void muscatupa_step(struct pattern* p, uint32_t n, uint32_t w, uint32_t h, 
+void muscatupa_step(struct pattern* p, uint32_t n, size_t w, size_t h, 
     float_t* im)
 {    
     float_t* act = new float_t[w*h]; // Activator array
@@ -39,7 +38,7 @@ void muscatupa_step(struct pattern* p, uint32_t n, uint32_t w, uint32_t h,
     float_t var_new;
     uint32_t* best_scale = new uint32_t[w*h];
     uint32_t i;
-    uint32_t j;
+    size_t j;
     
     // For each scale...
     for (i = 0; i < n; i++)
@@ -88,12 +87,12 @@ void muscatupa_step(struct pattern* p, uint32_t n, uint32_t w, uint32_t h,
 	normalize(w, h, im);
 }
 
-static void normalize(uint32_t w, uint32_t h, float_t *im)
+static void normalize(size_t w, size_t h, float_t *im)
 {
 	float_t max = FLT_MIN;
     float_t min = FLT_MAX;
     float_t range;
-	uint32_t i;
+	size_t i;
     
     for (i = 0; i < w*h; i++)
 	{

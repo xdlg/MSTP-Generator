@@ -7,8 +7,9 @@
 #ifndef COLORMAP_H
 #define COLORMAP_H
 
-#include <stdint.h>
-#include <math.h>
+#include <cstdint>
+#include <cstdlib>
+#include <cmath>
 
 /** Choice of colormap */
 typedef enum
@@ -33,6 +34,6 @@ void colormap_init(colormap_choice c);
  * @param[in] s Source image (pixels in the interval [0; 1])
  * @param[out] d Destination image (format ARGB888)
  *****************************************************************************/
-void colormap_ARGB8888(uint32_t w, uint32_t h, float_t* s, uint32_t* d);
+void colormap_ARGB8888(size_t w, size_t h, float_t* s, uint32_t* d);
 
 #endif

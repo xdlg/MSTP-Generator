@@ -6,8 +6,6 @@
 
 #include "colormap.h"
 
-#include <iostream>
-
 #define COLOR_DEPTH 255
 
 static uint32_t colors_bw[] =
@@ -46,7 +44,7 @@ static uint32_t colormap_lookup[COLOR_DEPTH];
  * @param[in] colors Anchor colors
  * @param[out] colormap Generated colormap
  *****************************************************************************/
-static void build_colormap(uint32_t n_colors, uint32_t* colors,
+static void build_colormap(size_t n_colors, uint32_t* colors,
     uint32_t* colormap);
 
 /**************************************************************************//**
@@ -58,7 +56,7 @@ static void build_colormap(uint32_t n_colors, uint32_t* colors,
  * @param[out] gradient Array where the gradient will be stored
  *****************************************************************************/
 static void build_argb_gradient(uint32_t color_begin, uint32_t color_end,
-    uint32_t gradient_depth, uint32_t* gradient);
+    size_t gradient_depth, uint32_t* gradient);
 
 /**************************************************************************//**
  * Computes a gradient between two values
@@ -69,11 +67,11 @@ static void build_argb_gradient(uint32_t color_begin, uint32_t color_end,
  * 
  * @return Gradient
  *****************************************************************************/
-float_t compute_gradient(uint8_t begin, uint8_t end, uint32_t depth);
+float_t compute_gradient(uint8_t begin, uint8_t end, size_t depth);
 
 void colormap_init(colormap_choice c)
 {
-    uint32_t n_colors;
+    size_t n_colors;
     uint32_t* colors;
     
     switch (c)
@@ -96,15 +94,14 @@ void colormap_init(colormap_choice c)
     build_colormap(n_colors, colors, colormap_lookup);
 }
 
-static void build_colormap(uint32_t n_colors, uint32_t* colors,
+static void build_colormap(size_t n_colors, uint32_t* colors,
     uint32_t* colormap)
 {
-    uint32_t gradient_depth;
-    uint32_t i;
+    size_t gradient_depth;
     
     // A gradient of n colors is (n - 1) concatenated gradients
     gradient_depth = COLOR_DEPTH/(n_colors - 1);
-    for (i = 0; i < (n_colors - 1); i++)
+    for (size_t i = 0; i < (n_colors - 1); i++)
     {
         build_argb_gradient(colors[i], colors[i + 1], gradient_depth,
             &(colormap[i*gradient_depth]));
@@ -114,14 +111,14 @@ static void build_colormap(uint32_t n_colors, uint32_t* colors,
     // couple values of the color map could remain empty. Correct that by
     // assigning them the last color. It's a kludge but on the display you
     // can't see the difference.
-    for (i = gradient_depth * (n_colors - 1); i < COLOR_DEPTH; i++)
+    for (size_t i = gradient_depth * (n_colors - 1); i < COLOR_DEPTH; i++)
     {
         colormap[i] = colors[n_colors - 1];
     }
 }
 
 static void build_argb_gradient(uint32_t color_begin, uint32_t color_end,
-    uint32_t gradient_depth, uint32_t* gradient)
+    size_t gradient_depth, uint32_t* gradient)
 {   
     // Compute the begin and end values for each channel
     uint8_t alpha_begin =   (color_begin &  0xFF000000) >> 24;
@@ -143,7 +140,7 @@ static void build_argb_gradient(uint32_t color_begin, uint32_t color_end,
         gradient_depth);
 
     // Compute the colors one by one
-    for (uint32_t i = 0; i < gradient_depth; i++)
+    for (size_t i = 0; i < gradient_depth; i++)
     {
         uint8_t alpha = (uint8_t)(i*gradient_alpha) + alpha_begin;
         uint8_t red = (uint8_t)(i*gradient_red) + red_begin;
@@ -153,19 +150,16 @@ static void build_argb_gradient(uint32_t color_begin, uint32_t color_end,
     }
 }
 
-float_t compute_gradient(uint8_t begin, uint8_t end, uint32_t depth)
+float_t compute_gradient(uint8_t begin, uint8_t end, size_t depth)
 {
     return (float_t)(end - begin)/(float)(depth);
 }
 
-void colormap_ARGB8888(uint32_t w, uint32_t h, float_t* s, uint32_t* d)
-{
-    uint8_t pixel;
-    uint32_t i;
-    
-    for (i = 0; i < w*h; i++)
+void colormap_ARGB8888(size_t w, size_t h, float_t* s, uint32_t* d)
+{    
+    for (size_t i = 0; i < w*h; i++)
     {
-        pixel = (uint8_t)(s[i]*COLOR_DEPTH);
+        uint8_t pixel = (s[i]*COLOR_DEPTH);
         d[i] = colormap_lookup[pixel];
     }
 }
