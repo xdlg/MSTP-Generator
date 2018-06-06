@@ -21,8 +21,8 @@
  * @param[in] s Source image
  * @param[out] d Destination image
  *****************************************************************************/
-static void blur_x(uint32_t w, uint32_t h, uint32_t r, uint32_t wt, float_t *s,
-    float_t *d);
+static void blur_x(uint32_t w, uint32_t h, uint32_t r, uint32_t wt, float_t* s,
+    float_t* d);
     
 /**************************************************************************//**
  * Vertical box blur (moving average of the picture, column by column).
@@ -34,13 +34,13 @@ static void blur_x(uint32_t w, uint32_t h, uint32_t r, uint32_t wt, float_t *s,
  * @param[in] s Source image
  * @param[out] d Destination image
  *****************************************************************************/
-static void blur_y(uint32_t w, uint32_t h, uint32_t r, uint32_t wt, float_t *s,
-    float_t *d);
+static void blur_y(uint32_t w, uint32_t h, uint32_t r, uint32_t wt, float_t* s,
+    float_t* d);
 
-void blur(uint32_t w, uint32_t h, uint32_t r, uint32_t wt, float_t *s,
-    float_t *d)
+void blur(uint32_t w, uint32_t h, uint32_t r, uint32_t wt, float_t* s,
+    float_t* d)
 {
-	float_t *temp = new float_t[w*h];
+	float_t* temp = new float_t[w*h];
     
 	blur_x(w, h, r, wt, s, temp);
 	blur_y(w, h, r, wt, temp, d);
@@ -48,8 +48,8 @@ void blur(uint32_t w, uint32_t h, uint32_t r, uint32_t wt, float_t *s,
     delete [] temp;
 }
 
-static void blur_x(uint32_t w, uint32_t h, uint32_t r, uint32_t wt, float_t *s,
-    float_t *d)
+static void blur_x(uint32_t w, uint32_t h, uint32_t r, uint32_t wt, float_t* s,
+    float_t* d)
 {	   
 	float_t sum;
 	uint32_t x, y, span;
@@ -88,8 +88,8 @@ static void blur_x(uint32_t w, uint32_t h, uint32_t r, uint32_t wt, float_t *s,
 	}
 }
 
-static void blur_y(uint32_t w, uint32_t h, uint32_t r, uint32_t wt, float_t *s, 
-    float_t *d)
+static void blur_y(uint32_t w, uint32_t h, uint32_t r, uint32_t wt, float_t* s, 
+    float_t* d)
 {	
 	// See the comments in blur_x, it's exactly the same but working on the
 	// columns instead of the rows.

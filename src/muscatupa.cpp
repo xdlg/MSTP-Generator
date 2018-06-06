@@ -17,9 +17,9 @@
  * @param[in] h Image height
  * @param[inout] im Image
  *****************************************************************************/
-static void normalize(uint32_t w, uint32_t h, float_t *im);
+static void normalize(uint32_t w, uint32_t h, float_t* im);
 
-void muscatupa_init_image(uint32_t w, uint32_t h, float_t *im)
+void muscatupa_init_image(uint32_t w, uint32_t h, float_t* im)
 {
 	uint32_t i;
 	
@@ -30,14 +30,14 @@ void muscatupa_init_image(uint32_t w, uint32_t h, float_t *im)
 	}
 }
 
-void muscatupa_step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, 
-    float_t *im)
+void muscatupa_step(struct pattern* p, uint32_t n, uint32_t w, uint32_t h, 
+    float_t* im)
 {    
-    float_t *act = new float_t[w*h]; // Activator array
-    float_t *inh = new float_t[w*h]; // Inhibitor array
-    float_t *var = new float_t[w*h]; // Variations
+    float_t* act = new float_t[w*h]; // Activator array
+    float_t* inh = new float_t[w*h]; // Inhibitor array
+    float_t* var = new float_t[w*h]; // Variations
     float_t var_new;
-    uint32_t *best_scale = new uint32_t[w*h];
+    uint32_t* best_scale = new uint32_t[w*h];
     uint32_t i;
     uint32_t j;
     

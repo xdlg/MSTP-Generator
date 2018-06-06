@@ -46,8 +46,8 @@ static uint32_t colormap_lookup[COLOR_DEPTH];
  * @param[in] colors Anchor colors
  * @param[out] colormap Generated colormap
  *****************************************************************************/
-static void build_colormap(uint32_t n_colors, uint32_t *colors,
-    uint32_t *colormap);
+static void build_colormap(uint32_t n_colors, uint32_t* colors,
+    uint32_t* colormap);
 
 /**************************************************************************//**
  * Builds a gradient array of ARGB codes
@@ -58,7 +58,7 @@ static void build_colormap(uint32_t n_colors, uint32_t *colors,
  * @param[out] gradient Array where the gradient will be stored
  *****************************************************************************/
 static void build_argb_gradient(uint32_t color_begin, uint32_t color_end,
-    uint32_t gradient_depth, uint32_t *gradient);
+    uint32_t gradient_depth, uint32_t* gradient);
 
 /**************************************************************************//**
  * Computes a gradient between two values
@@ -74,7 +74,7 @@ float_t compute_gradient(uint8_t begin, uint8_t end, uint32_t depth);
 void colormap_init(colormap_choice c)
 {
     uint32_t n_colors;
-    uint32_t *colors;
+    uint32_t* colors;
     
     switch (c)
     {
@@ -96,8 +96,8 @@ void colormap_init(colormap_choice c)
     build_colormap(n_colors, colors, colormap_lookup);
 }
 
-static void build_colormap(uint32_t n_colors, uint32_t *colors,
-    uint32_t *colormap)
+static void build_colormap(uint32_t n_colors, uint32_t* colors,
+    uint32_t* colormap)
 {
     uint32_t gradient_depth;
     uint32_t i;
@@ -121,7 +121,7 @@ static void build_colormap(uint32_t n_colors, uint32_t *colors,
 }
 
 static void build_argb_gradient(uint32_t color_begin, uint32_t color_end,
-    uint32_t gradient_depth, uint32_t *gradient)
+    uint32_t gradient_depth, uint32_t* gradient)
 {   
     // Compute the begin and end values for each channel
     uint8_t alpha_begin =   (color_begin &  0xFF000000) >> 24;
@@ -158,7 +158,7 @@ float_t compute_gradient(uint8_t begin, uint8_t end, uint32_t depth)
     return (float_t)(end - begin)/(float)(depth);
 }
 
-void colormap_ARGB8888(uint32_t w, uint32_t h, float_t *s, uint32_t *d)
+void colormap_ARGB8888(uint32_t w, uint32_t h, float_t* s, uint32_t* d)
 {
     uint8_t pixel;
     uint32_t i;
