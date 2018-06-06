@@ -8,6 +8,16 @@
 
 #define COLOR_DEPTH 255 /**< Depth of a color channel in bits */
 
+// Colormap names
+static const std::string bw =      "bw";
+static const std::string rainbow = "rainbow";
+static const std::string holiday = "holiday";
+static const std::string neon =    "neon";
+static const std::string lava =    "lava";
+static const std::string ice =     "ice";
+static const std::string dawn =    "dawn";
+static const std::string toxic =   "toxic";
+
 static const uint32_t colors_bw[] =
 {
     0xFF000000, // Black
@@ -115,45 +125,55 @@ static void build_argb_gradient(const uint32_t color_begin,
 float_t compute_gradient(const uint8_t begin, const uint8_t end,
     const size_t depth);
 
-void colormap_init(const colormap_choice c)
+void colormap_init(const std::string str)
 {
     size_t n_colors;
     const uint32_t* colors;
     
-    switch (c)
+    if (str == bw)
     {
-        case COLORMAP_BW:
-            n_colors = sizeof(colors_bw)/sizeof(colors_bw[0]);
-            colors = colors_bw;
-            break;
-        case COLORMAP_RAINBOW:
-            n_colors = sizeof(colors_rainbow)/sizeof(colors_rainbow[0]);
-            colors = colors_rainbow;
-            break;
-        case COLORMAP_HOLIDAY:
-            n_colors = sizeof(colors_holiday)/sizeof(colors_holiday[0]);
-            colors = colors_holiday;
-            break;
-        case COLORMAP_NEON:
-            n_colors = sizeof(colors_neon)/sizeof(colors_neon[0]);
-            colors = colors_neon;
-            break;
-        case COLORMAP_LAVA:
-            n_colors = sizeof(colors_lava)/sizeof(colors_lava[0]);
-            colors = colors_lava;
-            break;
-        case COLORMAP_ICE:
-            n_colors = sizeof(colors_ice)/sizeof(colors_ice[0]);
-            colors = colors_ice;
-            break;
-        case COLORMAP_DAWN:
-            n_colors = sizeof(colors_dawn)/sizeof(colors_dawn[0]);
-            colors = colors_dawn;
-            break;
-        case COLORMAP_TOXIC:
-            n_colors = sizeof(colors_toxic)/sizeof(colors_toxic[0]);
-            colors = colors_toxic;
-            break;
+        n_colors = sizeof(colors_bw)/sizeof(colors_bw[0]);
+        colors = colors_bw;
+    }
+    else if (str == rainbow)
+    {
+        n_colors = sizeof(colors_rainbow)/sizeof(colors_rainbow[0]);
+        colors = colors_rainbow;
+    }
+    else if (str == holiday)
+    {
+        n_colors = sizeof(colors_holiday)/sizeof(colors_holiday[0]);
+        colors = colors_holiday;
+    }
+    else if (str == neon)
+    {
+        n_colors = sizeof(colors_neon)/sizeof(colors_neon[0]);
+        colors = colors_neon;
+    }
+    else if (str == lava)
+    {
+        n_colors = sizeof(colors_lava)/sizeof(colors_lava[0]);
+        colors = colors_lava;
+    }
+    else if (str == ice)
+    {
+        n_colors = sizeof(colors_ice)/sizeof(colors_ice[0]);
+        colors = colors_ice;
+    }
+    else if (str == dawn)
+    {
+        n_colors = sizeof(colors_dawn)/sizeof(colors_dawn[0]);
+        colors = colors_dawn;
+    }
+    else if (str == toxic)
+    {
+        n_colors = sizeof(colors_toxic)/sizeof(colors_toxic[0]);
+        colors = colors_toxic;
+    }
+    else
+    {
+        n_colors = sizeof(colors_bw)/sizeof(colors_bw[0]);
+        colors = colors_bw;
     }
     
     build_colormap(n_colors, colors, colormap_lookup);

@@ -10,26 +10,14 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cmath>
-
-/** Choice of colormap */
-typedef enum
-{
-    COLORMAP_BW,
-    COLORMAP_RAINBOW,
-    COLORMAP_HOLIDAY,
-    COLORMAP_NEON,
-    COLORMAP_LAVA,
-    COLORMAP_ICE,
-    COLORMAP_DAWN,
-    COLORMAP_TOXIC
-} colormap_choice;
+#include <string>
 
 /**************************************************************************//**
  * Generates the selected colormap.
  * 
- * @param[in] c Choosen colormap
+ * @param[in] str Choosen colormap
  *****************************************************************************/
-void colormap_init(const colormap_choice c);
+void colormap_init(const std::string str);
 
 /**************************************************************************//**
  * Color mapping for SDL pixel format ARGB888.
