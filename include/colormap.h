@@ -24,7 +24,7 @@ typedef enum
  * 
  * @param[in] c Choosen colormap
  *****************************************************************************/
-void colormap_init(colormap_choice c);
+void colormap_init(const colormap_choice c);
 
 /**************************************************************************//**
  * Color mapping for SDL pixel format ARGB888.
@@ -34,6 +34,7 @@ void colormap_init(colormap_choice c);
  * @param[in] s Source image (pixels in the interval [0; 1])
  * @param[out] d Destination image (format ARGB888)
  *****************************************************************************/
-void colormap_ARGB8888(size_t w, size_t h, float_t* s, uint32_t* d);
+void colormap_ARGB8888(const size_t w, const size_t h, const float_t* s,
+    uint32_t* d);
 
 #endif

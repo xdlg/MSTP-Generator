@@ -8,13 +8,13 @@
 
 #define COLOR_DEPTH 255
 
-static uint32_t colors_bw[] =
+static const uint32_t colors_bw[] =
 {
     0xFF000000, // Black
     0xFFFFFFFF  // White
 };
 
-static uint32_t colors_rainbow[] =
+static const uint32_t colors_rainbow[] =
 {
     0xFFFF0000, // Red
     0xFFFF8000, // Orange
@@ -25,7 +25,7 @@ static uint32_t colors_rainbow[] =
     0xFF8000FF  // Violet
 };
 
-static uint32_t colors_lava[] =
+static const uint32_t colors_lava[] =
 {
     0xFF000000, // Black
     0xFFFF0000, // Red
@@ -44,7 +44,7 @@ static uint32_t colormap_lookup[COLOR_DEPTH];
  * @param[in] colors Anchor colors
  * @param[out] colormap Generated colormap
  *****************************************************************************/
-static void build_colormap(size_t n_colors, uint32_t* colors,
+static void build_colormap(const size_t n_colors, const uint32_t* colors,
     uint32_t* colormap);
 
 /**************************************************************************//**
@@ -55,8 +55,8 @@ static void build_colormap(size_t n_colors, uint32_t* colors,
  * @param[in] gradient_depth Number of colors in the array
  * @param[out] gradient Array where the gradient will be stored
  *****************************************************************************/
-static void build_argb_gradient(uint32_t color_begin, uint32_t color_end,
-    size_t gradient_depth, uint32_t* gradient);
+static void build_argb_gradient(const uint32_t color_begin,
+    const uint32_t color_end, const size_t gradient_depth, uint32_t* gradient);
 
 /**************************************************************************//**
  * Computes a gradient between two values
@@ -67,12 +67,13 @@ static void build_argb_gradient(uint32_t color_begin, uint32_t color_end,
  * 
  * @return Gradient
  *****************************************************************************/
-float_t compute_gradient(uint8_t begin, uint8_t end, size_t depth);
+float_t compute_gradient(const uint8_t begin, const uint8_t end,
+    const size_t depth);
 
-void colormap_init(colormap_choice c)
+void colormap_init(const colormap_choice c)
 {
     size_t n_colors;
-    uint32_t* colors;
+    const uint32_t* colors;
     
     switch (c)
     {
@@ -84,7 +85,6 @@ void colormap_init(colormap_choice c)
             n_colors = sizeof(colors_rainbow)/sizeof(colors_rainbow[0]);
             colors = colors_rainbow;
             break;
-            break;
         case COLORMAP_LAVA:
             n_colors = sizeof(colors_lava)/sizeof(colors_lava[0]);
             colors = colors_lava;
@@ -94,7 +94,7 @@ void colormap_init(colormap_choice c)
     build_colormap(n_colors, colors, colormap_lookup);
 }
 
-static void build_colormap(size_t n_colors, uint32_t* colors,
+static void build_colormap(const size_t n_colors, const uint32_t* colors,
     uint32_t* colormap)
 {
     size_t gradient_depth;
@@ -117,8 +117,8 @@ static void build_colormap(size_t n_colors, uint32_t* colors,
     }
 }
 
-static void build_argb_gradient(uint32_t color_begin, uint32_t color_end,
-    size_t gradient_depth, uint32_t* gradient)
+static void build_argb_gradient(const uint32_t color_begin,
+    const uint32_t color_end, const size_t gradient_depth, uint32_t* gradient)
 {   
     // Compute the begin and end values for each channel
     uint8_t alpha_begin =   (color_begin &  0xFF000000) >> 24;
@@ -150,12 +150,14 @@ static void build_argb_gradient(uint32_t color_begin, uint32_t color_end,
     }
 }
 
-float_t compute_gradient(uint8_t begin, uint8_t end, size_t depth)
+float_t compute_gradient(const uint8_t begin, const uint8_t end,
+    const size_t depth)
 {
     return (float_t)(end - begin)/(float)(depth);
 }
 
-void colormap_ARGB8888(size_t w, size_t h, float_t* s, uint32_t* d)
+void colormap_ARGB8888(const size_t w, const size_t h, const float_t* s,
+    uint32_t* d)
 {    
     for (size_t i = 0; i < w*h; i++)
     {

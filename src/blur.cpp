@@ -21,8 +21,8 @@
  * @param[in] s Source image
  * @param[out] d Destination image
  *****************************************************************************/
-static void blur_x(size_t w, size_t h, uint32_t r, uint32_t wt, float_t* s,
-    float_t* d);
+static void blur_x(const size_t w, const size_t h, const uint32_t r,
+    const uint32_t wt, const float_t* s, float_t* d);
     
 /**************************************************************************//**
  * Vertical box blur (moving average of the picture, column by column).
@@ -34,10 +34,11 @@ static void blur_x(size_t w, size_t h, uint32_t r, uint32_t wt, float_t* s,
  * @param[in] s Source image
  * @param[out] d Destination image
  *****************************************************************************/
-static void blur_y(size_t w, size_t h, uint32_t r, uint32_t wt, float_t* s,
-    float_t* d);
+static void blur_y(const size_t w, const size_t h, const uint32_t r,
+    const uint32_t wt, const float_t* s, float_t* d);
 
-void blur(size_t w, size_t h, uint32_t r, uint32_t wt, float_t* s, float_t* d)
+void blur(const size_t w, const size_t h, const uint32_t r, const uint32_t wt,
+    const float_t* s, float_t* d)
 {
 	float_t* temp = new float_t[w*h];
     
@@ -47,8 +48,8 @@ void blur(size_t w, size_t h, uint32_t r, uint32_t wt, float_t* s, float_t* d)
     delete [] temp;
 }
 
-static void blur_x(size_t w, size_t h, uint32_t r, uint32_t wt, float_t* s,
-    float_t* d)
+static void blur_x(const size_t w, const size_t h, const uint32_t r,
+    const uint32_t wt, const float_t* s, float_t* d)
 {	   
 	float_t sum;
 	uint32_t span;
@@ -87,8 +88,8 @@ static void blur_x(size_t w, size_t h, uint32_t r, uint32_t wt, float_t* s,
 	}
 }
 
-static void blur_y(size_t w, size_t h, uint32_t r, uint32_t wt, float_t* s, 
-    float_t* d)
+static void blur_y(const size_t w, const size_t h, const uint32_t r,
+    const uint32_t wt, const float_t* s, float_t* d)
 {	
 	// See the comments in blur_x, it's exactly the same but working on the
 	// columns instead of the rows.

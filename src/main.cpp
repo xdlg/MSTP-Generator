@@ -72,7 +72,7 @@ int main(int argc, char** argv)
     float_t *image = new float_t[width*height];
     uint32_t *image_colormapped = new uint32_t[width*height];
     colormap_init(COLORMAP_LAVA);
-    muscatupa_init_image(width, height, image);
+    blind_quarter_init_image(width, height, image);
     
     // Initialize SDL
     SDL_Init(SDL_INIT_VIDEO);
@@ -93,7 +93,7 @@ int main(int argc, char** argv)
         }
 
         // Update image
-        muscatupa_step(p, N_SCALES, width, height, image);
+        blind_quarter_step(p, N_SCALES, width, height, image);
         colormap_ARGB8888(width, height, image, image_colormapped);
     
         // Show updated image

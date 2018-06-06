@@ -16,9 +16,9 @@
  * @param[in] h Image height
  * @param[inout] im Image
  *****************************************************************************/
-static void normalize(size_t w, size_t h, float_t* im);
+static void normalize(const size_t w, const size_t h, float_t* im);
 
-void muscatupa_init_image(size_t w, size_t h, float_t* im)
+void blind_quarter_init_image(const size_t w, const size_t h, float_t* im)
 {
 	size_t i;
 	
@@ -29,26 +29,24 @@ void muscatupa_init_image(size_t w, size_t h, float_t* im)
 	}
 }
 
-void muscatupa_step(struct pattern* p, uint32_t n, size_t w, size_t h, 
-    float_t* im)
+void blind_quarter_step(const struct pattern* p, const uint32_t n,
+    const size_t w, const size_t h, float_t* im)
 {    
     float_t* act = new float_t[w*h]; // Activator array
     float_t* inh = new float_t[w*h]; // Inhibitor array
     float_t* var = new float_t[w*h]; // Variations
     float_t var_new;
     uint32_t* best_scale = new uint32_t[w*h];
-    uint32_t i;
-    size_t j;
     
     // For each scale...
-    for (i = 0; i < n; i++)
+    for (size_t i = 0; i < n; i++)
     {
         // Compute activator and inhibitor arrays
         blur(w, h, (p+i)->act_r, (p+i)->wt, im, act);
 		blur(w, h, (p+i)->inh_r, (p+i)->wt, im, inh);
         
         // For each pixel...
-        for (j = 0; j < w*h; j++)
+        for (size_t j = 0; j < w*h; j++)
         {
             // Update the variation array if the variation for this pixel is
             // smaller than the one already stored. This way, the variation
@@ -69,7 +67,7 @@ void muscatupa_step(struct pattern* p, uint32_t n, size_t w, size_t h,
     
     // For each pixel, add the small amount if the activator was larger than
     // the inhibitor, subtract otherwise
-    for (j = 0; j < w*h; j++)
+    for (size_t j = 0; j < w*h; j++)
     {
         if (var[j] > 0)
         {
@@ -87,7 +85,7 @@ void muscatupa_step(struct pattern* p, uint32_t n, size_t w, size_t h,
 	normalize(w, h, im);
 }
 
-static void normalize(size_t w, size_t h, float_t *im)
+static void normalize(const size_t w, const size_t h, float_t *im)
 {
 	float_t max = FLT_MIN;
     float_t min = FLT_MAX;

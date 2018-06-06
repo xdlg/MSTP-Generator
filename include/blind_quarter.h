@@ -29,7 +29,7 @@ struct pattern
  * @param[in] h Image height
  * @param[out] im Image (values in the interval [0; 1])
  *****************************************************************************/
-void muscatupa_init_image(size_t w, size_t h, float_t* im);
+void blind_quarter_init_image(const size_t w, const size_t h, float_t* im);
 
 /**************************************************************************//**
  * One step of the main algorithm.
@@ -40,7 +40,7 @@ void muscatupa_init_image(size_t w, size_t h, float_t* im);
  * @param[in] h Image height
  * @param[inout] im Image (values in the interval [0; 1])
  *****************************************************************************/
-void muscatupa_step(struct pattern* p, uint32_t n, size_t w, size_t h, 
-    float_t* im);
+void blind_quarter_step(const struct pattern* p, const uint32_t n,
+    const size_t w, const size_t h, float_t* im);
 
 #endif

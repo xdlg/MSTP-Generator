@@ -21,6 +21,7 @@
  * @param[in] s Source image
  * @param[out] d Destination image
  *****************************************************************************/
-void blur(size_t w, size_t h, uint32_t r, uint32_t wt, float_t* s, float_t* d);
+void blur(const size_t w, const size_t h, const uint32_t r, const uint32_t wt,
+    const float_t* s, float_t* d);
 
 #endif
