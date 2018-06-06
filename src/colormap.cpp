@@ -96,11 +96,9 @@ void colormap_init(const colormap_choice c)
 
 static void build_colormap(const size_t n_colors, const uint32_t* colors,
     uint32_t* colormap)
-{
-    size_t gradient_depth;
-    
+{    
     // A gradient of n colors is (n - 1) concatenated gradients
-    gradient_depth = COLOR_DEPTH/(n_colors - 1);
+    size_t gradient_depth = COLOR_DEPTH/(n_colors - 1);
     for (size_t i = 0; i < (n_colors - 1); i++)
     {
         build_argb_gradient(colors[i], colors[i + 1], gradient_depth,

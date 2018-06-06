@@ -51,12 +51,9 @@ void blur(const size_t w, const size_t h, const uint32_t r, const uint32_t wt,
 static void blur_x(const size_t w, const size_t h, const uint32_t r,
     const uint32_t wt, const float_t* s, float_t* d)
 {	   
-	float_t sum;
-	uint32_t span;
-	
 	for (size_t y = 0; y < h; y++)
 	{
-		sum = 0.0;
+		float_t sum = 0.0;
 		
 		// In the blurred picture, the first pixel of each row is the average
 		// of the source pixels between x = 0 and x = r.
@@ -79,7 +76,7 @@ static void blur_x(const size_t w, const size_t h, const uint32_t r,
 		{
 			sum += (x + r) < w ? s[x + r + y*w] : 0;
 			sum -= (int32_t)(x - r - 1) >= 0 ? s[x - r - 1 + y*w] : 0;
-            span = ((x + r) < w ? (x + r) : (w - 1))
+            uint32_t span = ((x + r) < w ? (x + r) : (w - 1))
 				 - ((int32_t)(x - r) >= 0 ? (x - r) : 0) 
                  + 1;
             d[x + y*w] = (float_t)wt * sum / (float_t)span;
@@ -93,12 +90,9 @@ static void blur_y(const size_t w, const size_t h, const uint32_t r,
 {	
 	// See the comments in blur_x, it's exactly the same but working on the
 	// columns instead of the rows.
-	float_t sum;
-	uint32_t span;
-	
 	for (size_t x = 0; x < w; x++)
 	{
-		sum = 0.0;
+		float_t sum = 0.0;
 		
 		for (size_t y = 0; y <= r; y++)
 		{
@@ -110,7 +104,7 @@ static void blur_y(const size_t w, const size_t h, const uint32_t r,
 		{
 			sum += (y + r) < h ? s[x + (y + r)*w] : 0;
 			sum -= (int32_t)(y - r - 1) >= 0 ? s[x + (y - r - 1)*w] : 0;
-            span = ((y + r) < h ? (y + r) : (h - 1))
+            uint32_t span = ((y + r) < h ? (y + r) : (h - 1))
 				 - ((int32_t)(y - r) >= 0 ? (y - r) : 0)
                  + 1;
             d[x + y*w] = (float_t)wt * sum / (float_t)span;
