@@ -1,4 +1,4 @@
-Muscatupa - Multi-Scale Turing Patterns
+BlindQuarter - Multi-Scale Turing Patterns
 ---
 
 There are many visual patterns that occur naturally: zebra stripes, leopard spots, tribal tattoos... Ah well, maybe not the last one. Anyway, it turns out that some of these patterns can be described mathematically and computer-simulated. Starting with a grid of pixels of random values, and applying a simple set of rules over and over again, you see unexpected patterns emerge. Maybe you know Conway's game of life, that's the same kind of idea. Right now we're interested in Turing patterns, or reaction-diffusion patterns, which have been first described by Alan Turing. We owe him a lot, don't we?
