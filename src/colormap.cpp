@@ -6,7 +6,7 @@
 
 #include "colormap.h"
 
-#define COLOR_DEPTH 255
+#define COLOR_DEPTH 255 /**< Depth of a color channel in bits */
 
 static const uint32_t colors_bw[] =
 {
@@ -25,12 +25,57 @@ static const uint32_t colors_rainbow[] =
     0xFF8000FF  // Violet
 };
 
+static const uint32_t colors_holiday[] = 
+{
+    0xFF6386FF, // Pastel blue
+    0xFFFFE574, // Pastel yellow
+    0xFFFFBC8F, // Pastel orange
+    0xFFFFBFD4, // Pastel pink
+    0xFF53DFBD  // Pastel green
+};
+
+static const uint32_t colors_neon[] =
+{
+    0xFF0000FF, // Blue
+    0xFFFFFF00, // Yellow
+    0xFFFF00FF, // Magenta
+    0xFF00FFFF, // Cyan
+    0xFF00FF00  // Green
+};
+
 static const uint32_t colors_lava[] =
 {
     0xFF000000, // Black
     0xFFFF0000, // Red
     0xFFFF8000, // Orange
     0xFFFFFF00, // Yellow
+    0xFFFFFFFF  // White
+};
+
+static const uint32_t colors_ice[] =
+{
+    0xFF000000, // Black
+    0xFF000080, // Dark blue
+    0xFF0000FF, // Blue
+    0xFF00FFFF, // Cyan
+    0xFFFFFFFF  // White
+};
+
+static const uint32_t colors_dawn[] =
+{
+    0xFF000080, // Dark blue
+    0xFF800080, // Purple
+    0xFFFF8080, // Reddish
+    0xFFFFFF80, // Dark yellowish
+    0xFFFFFFC0  // Light yellowish
+};
+
+static const uint32_t colors_toxic[] =
+{
+    0xFF000000, // Black
+    0xFF008000, // Dark green
+    0xFF80FF00, // Light green
+    0xFFFFFF80, // Yellowish
     0xFFFFFFFF  // White
 };
 
@@ -85,9 +130,29 @@ void colormap_init(const colormap_choice c)
             n_colors = sizeof(colors_rainbow)/sizeof(colors_rainbow[0]);
             colors = colors_rainbow;
             break;
+        case COLORMAP_HOLIDAY:
+            n_colors = sizeof(colors_holiday)/sizeof(colors_holiday[0]);
+            colors = colors_holiday;
+            break;
+        case COLORMAP_NEON:
+            n_colors = sizeof(colors_neon)/sizeof(colors_neon[0]);
+            colors = colors_neon;
+            break;
         case COLORMAP_LAVA:
             n_colors = sizeof(colors_lava)/sizeof(colors_lava[0]);
             colors = colors_lava;
+            break;
+        case COLORMAP_ICE:
+            n_colors = sizeof(colors_ice)/sizeof(colors_ice[0]);
+            colors = colors_ice;
+            break;
+        case COLORMAP_DAWN:
+            n_colors = sizeof(colors_dawn)/sizeof(colors_dawn[0]);
+            colors = colors_dawn;
+            break;
+        case COLORMAP_TOXIC:
+            n_colors = sizeof(colors_toxic)/sizeof(colors_toxic[0]);
+            colors = colors_toxic;
             break;
     }
     

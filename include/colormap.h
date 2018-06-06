@@ -16,7 +16,12 @@ typedef enum
 {
     COLORMAP_BW,
     COLORMAP_RAINBOW,
-    COLORMAP_LAVA
+    COLORMAP_HOLIDAY,
+    COLORMAP_NEON,
+    COLORMAP_LAVA,
+    COLORMAP_ICE,
+    COLORMAP_DAWN,
+    COLORMAP_TOXIC
 } colormap_choice;
 
 /**************************************************************************//**
