@@ -64,7 +64,7 @@ int main(int argc, char** argv)
     }
     
     // Initialize the patterns
-    uint32_t n_active_scales = 1;
+    uint32_t n_active_scales = 3;
     struct pattern p[N_SCALES];
 	for (size_t i = 0; i < N_SCALES; i++)
 	{
@@ -100,7 +100,10 @@ int main(int argc, char** argv)
                 case SDL_QUIT:
                     quit = true;
                     break;
-                case SDL_KEYUP:
+                case SDL_MOUSEBUTTONDOWN:
+                    blind_quarter_init_image(width, height, image);
+                    break;
+                case SDL_KEYDOWN:
                     SDL_Keycode key = event.key.keysym.sym;
                     if ((key == SDLK_KP_PLUS) && (n_active_scales < N_SCALES))
                     {
