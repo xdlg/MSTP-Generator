@@ -22,7 +22,7 @@ $(BUILD)/%.o: $(SRC)/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 	
 run:
-	$(BIN)/$(EXE)
+	$(BIN)/$(EXE) 320 240
 
 clean:
 	rm -r $(BUILD) && rm -r $(BIN)

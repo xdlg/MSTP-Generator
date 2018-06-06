@@ -40,9 +40,12 @@ static void blur_y(uint32_t w, uint32_t h, uint32_t r, uint32_t wt, float_t *s,
 void blur(uint32_t w, uint32_t h, uint32_t r, uint32_t wt, float_t *s,
     float_t *d)
 {
-	float_t temp[w*h];
+	float_t *temp = new float_t[w*h];
+    
 	blur_x(w, h, r, wt, s, temp);
 	blur_y(w, h, r, wt, temp, d);
+    
+    delete [] temp;
 }
 
 static void blur_x(uint32_t w, uint32_t h, uint32_t r, uint32_t wt, float_t *s,

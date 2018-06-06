@@ -33,12 +33,13 @@ void muscatupa_init_image(uint32_t w, uint32_t h, float_t *im)
 void muscatupa_step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h, 
     float_t *im)
 {    
-    float_t act[w*h]; // Activator array
-    float_t inh[w*h]; // Inhibitor array
-    float_t var[w*h]; // Variations
+    float_t *act = new float_t[w*h]; // Activator array
+    float_t *inh = new float_t[w*h]; // Inhibitor array
+    float_t *var = new float_t[w*h]; // Variations
     float_t var_new;
-    uint32_t best_scale[w*h];
-    uint32_t i, j;
+    uint32_t *best_scale = new uint32_t[w*h];
+    uint32_t i;
+    uint32_t j;
     
     // For each scale...
     for (i = 0; i < n; i++)
@@ -64,6 +65,9 @@ void muscatupa_step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h,
         }
     }
     
+    delete [] act;
+    delete [] inh;
+    
     // For each pixel, add the small amount if the activator was larger than
     // the inhibitor, subtract otherwise
     for (j = 0; j < w*h; j++)
@@ -77,6 +81,9 @@ void muscatupa_step(struct pattern *p, uint32_t n, uint32_t w, uint32_t h,
             im[j] -= (p + best_scale[j])->sa;
         }
     }
+    
+    delete [] var;
+    delete [] best_scale;
     
 	normalize(w, h, im);
 }

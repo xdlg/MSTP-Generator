@@ -13,9 +13,10 @@
 #include "muscatupa.h"
 #include "colormap.h"
 
-#define WIDTH       400 /**< Image width */
-#define HEIGHT      225 /**< Image height */
 #define N_SCALES    5   /**< Number of Turing patterns/scales */
+#define N_ARGUMENTS 3   /**< Required number of command line arguments */
+#define WIDTH_MIN   100 /**< Minimum image width */
+#define HEIGHT_MIN  100 /**< Minimum image height */
 
 /** 
 * Parameters of the Turing patterns.
@@ -29,18 +30,38 @@ const float_t sa_all[N_SCALES] = {0.05, 0.04, 0.03, 0.02, 0.01};
 /** Weights */
 const uint32_t wt_all[N_SCALES] = {1, 1, 1, 1, 1};
 
-int main(int argc, char ** argv)
-{
-    struct pattern p[N_SCALES];
-    float_t image[WIDTH*HEIGHT];
-    uint32_t image_colormapped[WIDTH*HEIGHT];
-    uint32_t i;
+/**************************************************************************//**
+ * Parses the command line arguments.
+ * 
+ * @param[in] argc Argument count
+ * @param[in] argv Argument vector
+ * @param[out] width Image width (argument 1)
+ * @param[out] height Image height (argument 2)
+ * 
+ * @return false if no error
+ *****************************************************************************/
+static bool parse_args(int argc, char** argv, uint32_t* width, uint32_t* height);
+
+int main(int argc, char** argv)
+{   
+    uint32_t width;
+    uint32_t height;
+    bool parsing_error = parse_args(argc, argv, &width, &height);
     
-    SDL_Event event;
-    bool quit = false;
+    if (parsing_error)
+    {
+        std::cerr << "Usage: " << argv[0] << " IMAGE_WIDTH IMAGE_HEIGHT"
+            << std::endl;
+        std::cerr << "IMAGE_WIDTH >= " << std::to_string(WIDTH_MIN)
+            << std::endl;
+        std::cerr << "IMAGE_HEIGHT >= " << std::to_string(HEIGHT_MIN)
+            << std::endl;
+        return 1;
+    }
     
     // Initialize the patterns
-	for (i = 0; i < N_SCALES; i++)
+    struct pattern p[N_SCALES];
+	for (uint32_t i = 0; i < N_SCALES; i++)
 	{
 		p[i].act_r = act_r_all[i];
 		p[i].inh_r = inh_r_all[i];
@@ -48,16 +69,21 @@ int main(int argc, char ** argv)
 		p[i].wt = wt_all[i];
     }
     
+    // Initialize the image generation
+    float_t *image = new float_t[width*height];
+    uint32_t *image_colormapped = new uint32_t[width*height];
     colormap_init(COLORMAP_LAVA);
-    muscatupa_init_image(WIDTH, HEIGHT, image);
+    muscatupa_init_image(width, height, image);
     
     // Initialize SDL
     SDL_Init(SDL_INIT_VIDEO);
     SDL_Window * window = SDL_CreateWindow("Muscatupa",
-        SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT, 0);
+        SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, 0);
     SDL_Renderer * renderer = SDL_CreateRenderer(window, -1, 0);
     SDL_Texture * texture = SDL_CreateTexture(renderer,
-        SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, WIDTH, HEIGHT);
+        SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, width, height);
+    SDL_Event event;
+    bool quit = false;
  
     while (!quit)
     {    
@@ -68,12 +94,12 @@ int main(int argc, char ** argv)
         }
 
         // Update image
-        muscatupa_step(p, N_SCALES, WIDTH, HEIGHT, image);
-        colormap_ARGB8888(WIDTH, HEIGHT, image, image_colormapped);
+        muscatupa_step(p, N_SCALES, width, height, image);
+        colormap_ARGB8888(width, height, image, image_colormapped);
     
         // Show updated image
         SDL_UpdateTexture(texture, NULL, image_colormapped,
-            WIDTH*sizeof(uint32_t));
+            width*sizeof(uint32_t));
         SDL_RenderCopy(renderer, texture, NULL, NULL);
         SDL_RenderPresent(renderer);
     }
@@ -83,6 +109,37 @@ int main(int argc, char ** argv)
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
+    
+    delete [] image;
+    delete [] image_colormapped;
  
     return 0;
+}
+
+static bool parse_args(int argc, char** argv, uint32_t* width, uint32_t* height)
+{
+    bool error = false;
+    
+    // Check the number of arguments
+    if (argc != N_ARGUMENTS)
+    {
+        error = true;
+    }
+    else
+    {
+        char* end_width;
+        char* end_height;
+        *width = strtol(argv[1], &end_width, 0);
+        *height = strtol(argv[2], &end_height, 0);
+    
+        // Check the contents of the arguments
+        if ((end_width == NULL) || (end_height == NULL)
+            || (*width < WIDTH_MIN) || (*height < HEIGHT_MIN)
+            || (*width == UINT32_MAX) || (*height == UINT32_MAX))
+        {
+            error = true;
+        }
+    }
+    
+    return error;
 }
