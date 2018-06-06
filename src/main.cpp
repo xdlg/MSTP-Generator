@@ -9,6 +9,7 @@
 #include <cmath>
 #include <iostream>
 #include <SDL.h>
+#include <SDL_keycode.h>
 #include "blind_quarter.h"
 #include "colormap.h"
 
@@ -43,7 +44,7 @@ static bool parse_args(int argc, char** argv, size_t* width, size_t* height,
     std::string* colors);
 
 int main(int argc, char** argv)
-{   
+{       
     size_t width;
     size_t height;
     std::string colors;
@@ -63,6 +64,7 @@ int main(int argc, char** argv)
     }
     
     // Initialize the patterns
+    uint32_t n_active_scales = 1;
     struct pattern p[N_SCALES];
 	for (size_t i = 0; i < N_SCALES; i++)
 	{
@@ -90,14 +92,30 @@ int main(int argc, char** argv)
  
     while (!quit)
     {    
-        // Check if the user wants to quit
+        // Handle events
         while (SDL_PollEvent(&event))
         {
-            quit = event.type == SDL_QUIT;
+            switch(event.type)
+            {
+                case SDL_QUIT:
+                    quit = true;
+                    break;
+                case SDL_KEYUP:
+                    SDL_Keycode key = event.key.keysym.sym;
+                    if ((key == SDLK_KP_PLUS) && (n_active_scales < N_SCALES))
+                    {
+                        n_active_scales++;
+                    }
+                    if ((key == SDLK_KP_MINUS) && (n_active_scales > 1))
+                    {
+                        n_active_scales--;
+                    }
+                    break;
+            }
         }
 
         // Update image
-        blind_quarter_step(p, N_SCALES, width, height, image);
+        blind_quarter_step(p, n_active_scales, width, height, image);
         colormap_ARGB8888(width, height, image, image_colormapped);
     
         // Show updated image
