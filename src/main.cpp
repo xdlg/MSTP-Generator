@@ -17,8 +17,6 @@
 #define HEIGHT      225 /**< Image height */
 #define N_SCALES    5   /**< Number of Turing patterns/scales */
 
-//~ #define TIMING_ACTIVE
-
 /** 
 * Parameters of the Turing patterns.
 */
@@ -37,12 +35,6 @@ int main(int argc, char ** argv)
     float_t image[WIDTH*HEIGHT];
     uint32_t image_colormapped[WIDTH*HEIGHT];
     uint32_t i;
-    
-#ifdef TIMING_ACTIVE
-    uint32_t n_frames = 1;
-    double_t t_average = 0.0;
-    double_t t_diff;
-#endif
     
     SDL_Event event;
     bool quit = false;
@@ -74,10 +66,6 @@ int main(int argc, char ** argv)
         {
             quit = event.type == SDL_QUIT;
         }
- 
-#ifdef TIMING_ACTIVE
-        auto start = std::chrono::steady_clock::now();
-#endif
 
         // Update image
         muscatupa_step(p, N_SCALES, WIDTH, HEIGHT, image);
@@ -88,16 +76,6 @@ int main(int argc, char ** argv)
             WIDTH*sizeof(uint32_t));
         SDL_RenderCopy(renderer, texture, NULL, NULL);
         SDL_RenderPresent(renderer);
-   
-#ifdef TIMING_ACTIVE
-        auto end = std::chrono::steady_clock::now();
-        t_diff = std::chrono::duration <double, std::milli> (end - start).count();
-        t_average = t_average + (t_diff - t_average)/n_frames;
-        n_frames++;
-        
-        if (n_frames == 200)
-            break;
-#endif
     }
     
     // Clean up SDL
@@ -105,10 +83,6 @@ int main(int argc, char ** argv)
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
-    
-#ifdef TIMING_ACTIVE
-    std::cout << t_average << std::endl;
-#endif
  
     return 0;
 }
