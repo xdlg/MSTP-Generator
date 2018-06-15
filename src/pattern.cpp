@@ -4,7 +4,7 @@
  * Container for the parameters of one pattern.
  *****************************************************************************/
 
-#include "Pattern.h"
+#include "pattern.h"
 
 Pattern::Pattern(uint32_t act_r, uint32_t inh_r, uint32_t wt, float_t sa)
 {    

@@ -27,59 +27,63 @@ void blind_quarter_init_image(const size_t w, const size_t h, float_t* im)
 	}
 }
 
-void blind_quarter_step(const struct pattern* p, const uint32_t n,
-    const size_t w, const size_t h, float_t* im)
-{    
-    float_t* var = new float_t[w*h];
-    uint32_t* best_scale = new uint32_t[w*h];
-    
-    // For each scale...
-    for (size_t i = 0; i < n; i++)
+void blind_quarter_step(std::vector<Pattern> p, const size_t w, const size_t h,
+    float_t* im)
+{   
+    if (p.size() > 0)
     {
-        // Compute activator and inhibitor arrays
-        float_t* act = new float_t[w*h];
-        float_t* inh = new float_t[w*h];
-        blur(w, h, (p+i)->act_r, (p+i)->wt, im, act);
-		blur(w, h, (p+i)->inh_r, (p+i)->wt, im, inh);
+        float_t* var = new float_t[w*h];
+        uint32_t* best_scale = new uint32_t[w*h];
         
-        // For each pixel...
+        // For each scale...
+        for (size_t i = 0; i < p.size(); i++)
+        {
+            // Compute activator and inhibitor arrays
+            float_t* act = new float_t[w*h];
+            float_t* inh = new float_t[w*h];
+            blur(w, h, p[i].get_act_r(), p[i].get_wt(), im, act);
+            blur(w, h, p[i].get_inh_r(), p[i].get_wt(), im, inh);
+            
+            // For each pixel...
+            for (size_t j = 0; j < w*h; j++)
+            {
+                // Update the variation array if the variation for this pixel
+                // is smaller than the one already stored. This way,
+                // the variation array always stores the smallest variation.
+                // When processing the first scale (i == 0), the variation
+                // array is always updated, so we don't need to initialize it
+                // beforehand.
+                float_t var_new = act[j] - inh[j];
+                if ((fabs(var_new) < fabs(var[j])) || (i == 0))
+                {
+                    var[j] = var_new;
+                    best_scale[j] = i;
+                }
+            }
+            
+            delete [] act;
+            delete [] inh;
+        }
+        
+        // For each pixel, add the small amount if the activator was larger
+        // than the inhibitor, subtract otherwise
         for (size_t j = 0; j < w*h; j++)
         {
-            // Update the variation array if the variation for this pixel is
-            // smaller than the one already stored. This way, the variation
-            // array always stores the smallest variation.
-            // When processing the first scale (i == 0), the variation array
-            // is always updated, so we don't need to initialize it beforehand.
-            float_t var_new = act[j] - inh[j];
-            if ((fabs(var_new) < fabs(var[j])) || (i == 0))
+            if (var[j] > 0)
             {
-                var[j] = var_new;
-                best_scale[j] = i;
+                im[j] += p[best_scale[j]].get_sa();
+            }
+            else
+            {
+                im[j] -= p[best_scale[j]].get_sa();
             }
         }
         
-        delete [] act;
-        delete [] inh;
+        delete [] var;
+        delete [] best_scale;
+        
+        normalize(w, h, im);
     }
-    
-    // For each pixel, add the small amount if the activator was larger than
-    // the inhibitor, subtract otherwise
-    for (size_t j = 0; j < w*h; j++)
-    {
-        if (var[j] > 0)
-        {
-            im[j] += (p + best_scale[j])->sa;
-        }
-        else
-        {
-            im[j] -= (p + best_scale[j])->sa;
-        }
-    }
-    
-    delete [] var;
-    delete [] best_scale;
-    
-	normalize(w, h, im);
 }
 
 static void normalize(const size_t w, const size_t h, float_t *im)

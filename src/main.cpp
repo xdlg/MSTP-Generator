@@ -8,8 +8,10 @@
 #include <cstdlib>
 #include <cmath>
 #include <iostream>
+#include <vector>
 #include <SDL.h>
 #include <SDL_keycode.h>
+#include "pattern.h"
 #include "blind_quarter.h"
 #include "colormap.h"
 
@@ -64,14 +66,12 @@ int main(int argc, char** argv)
     }
     
     // Initialize the patterns
-    uint32_t n_active_scales = 3;
-    struct pattern p[N_SCALES];
-	for (size_t i = 0; i < N_SCALES; i++)
+    std::vector<Pattern> patterns;
+    for (size_t i = 0; i < N_SCALES; i++)
 	{
-		p[i].act_r = act_r_all[i];
-		p[i].inh_r = inh_r_all[i];
-		p[i].sa = sa_all[i];
-		p[i].wt = wt_all[i];
+        Pattern* test = new Pattern(act_r_all[i], inh_r_all[i], wt_all[i],
+            sa_all[i]);
+        patterns.push_back(*test);
     }
     
     // Initialize the image generation
@@ -103,22 +103,23 @@ int main(int argc, char** argv)
                 case SDL_MOUSEBUTTONDOWN:
                     blind_quarter_init_image(width, height, image);
                     break;
-                case SDL_KEYDOWN:
-                    SDL_Keycode key = event.key.keysym.sym;
-                    if ((key == SDLK_KP_PLUS) && (n_active_scales < N_SCALES))
-                    {
-                        n_active_scales++;
-                    }
-                    if ((key == SDLK_KP_MINUS) && (n_active_scales > 1))
-                    {
-                        n_active_scales--;
-                    }
-                    break;
+                //~ case SDL_KEYDOWN:
+                    //~ SDL_Keycode key = event.key.keysym.sym;
+                    //~ if (key == SDLK_KP_PLUS)
+                    //~ {
+                        //~ Pattern* test = get_random_pattern(width, height);
+                        //~ patterns.push_back(*test);
+                    //~ }
+                    //~ if (key == SDLK_KP_MINUS)
+                    //~ {
+                        //~ patterns.pop_back();
+                    //~ }
+                    //~ break;
             }
         }
 
         // Update image
-        blind_quarter_step(p, n_active_scales, width, height, image);
+        blind_quarter_step(patterns, width, height, image);
         colormap_ARGB8888(width, height, image, image_colormapped);
     
         // Show updated image
