@@ -27,22 +27,22 @@ void blind_quarter_init_image(const size_t w, const size_t h, float_t* im)
 	}
 }
 
-void blind_quarter_step(std::vector<Pattern> p, const size_t w, const size_t h,
+void blind_quarter_step(std::vector<Pattern>* p, const size_t w, const size_t h,
     float_t* im)
 {   
-    if (p.size() > 0)
+    if (p->size() > 0)
     {
         float_t* var = new float_t[w*h];
-        uint32_t* best_scale = new uint32_t[w*h];
+        Pattern** best_patterns = new Pattern*[w*h];
         
         // For each scale...
-        for (size_t i = 0; i < p.size(); i++)
+        for (size_t i = 0; i < p->size(); i++)
         {
             // Compute activator and inhibitor arrays
             float_t* act = new float_t[w*h];
             float_t* inh = new float_t[w*h];
-            blur(w, h, p[i].get_act_r(), p[i].get_wt(), im, act);
-            blur(w, h, p[i].get_inh_r(), p[i].get_wt(), im, inh);
+            blur(w, h, (*p)[i].get_act_r(), (*p)[i].get_wt(), im, act);
+            blur(w, h, (*p)[i].get_inh_r(), (*p)[i].get_wt(), im, inh);
             
             // For each pixel...
             for (size_t j = 0; j < w*h; j++)
@@ -57,7 +57,7 @@ void blind_quarter_step(std::vector<Pattern> p, const size_t w, const size_t h,
                 if ((fabs(var_new) < fabs(var[j])) || (i == 0))
                 {
                     var[j] = var_new;
-                    best_scale[j] = i;
+                    best_patterns[j] = &((*p)[i]);
                 }
             }
             
@@ -71,16 +71,16 @@ void blind_quarter_step(std::vector<Pattern> p, const size_t w, const size_t h,
         {
             if (var[j] > 0)
             {
-                im[j] += p[best_scale[j]].get_sa();
+                im[j] += best_patterns[j]->get_sa();
             }
             else
             {
-                im[j] -= p[best_scale[j]].get_sa();
+                im[j] -= best_patterns[j]->get_sa();
             }
         }
         
         delete [] var;
-        delete [] best_scale;
+        delete [] best_patterns;
         
         normalize(w, h, im);
     }

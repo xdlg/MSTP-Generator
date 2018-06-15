@@ -69,9 +69,8 @@ int main(int argc, char** argv)
     std::vector<Pattern> patterns;
     for (size_t i = 0; i < N_SCALES; i++)
 	{
-        Pattern* test = new Pattern(act_r_all[i], inh_r_all[i], wt_all[i],
-            sa_all[i]);
-        patterns.push_back(*test);
+        patterns.push_back(Pattern(act_r_all[i], inh_r_all[i], wt_all[i],
+            sa_all[i]));
     }
     
     // Initialize the image generation
@@ -119,7 +118,7 @@ int main(int argc, char** argv)
         }
 
         // Update image
-        blind_quarter_step(patterns, width, height, image);
+        blind_quarter_step(&patterns, width, height, image);
         colormap_ARGB8888(width, height, image, image_colormapped);
     
         // Show updated image

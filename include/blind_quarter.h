@@ -42,7 +42,7 @@ void blind_quarter_init_image(const size_t w, const size_t h, float_t* im);
  * @param[in] h Image height
  * @param[inout] im Image (values in the interval [0; 1])
  *****************************************************************************/
-void blind_quarter_step(std::vector<Pattern> p, const size_t w, const size_t h,
+void blind_quarter_step(std::vector<Pattern>* p, const size_t w, const size_t h,
     float_t* im);
 
 #endif
