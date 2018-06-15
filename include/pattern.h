@@ -10,15 +10,16 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cmath>
+#include <vector>
 
 class Pattern
 {
     public:
         Pattern(uint32_t act_r, uint32_t inh_r, uint32_t wt, float_t sa);
-        uint32_t get_act_r(void);
-        uint32_t get_inh_r(void);
-        uint32_t get_wt(void);
-        float_t get_sa(void);
+        uint32_t get_act_r(void) const;
+        uint32_t get_inh_r(void)const;
+        uint32_t get_wt(void) const;
+        float_t get_sa(void) const;
         
     private:
         /** Activator radius */
@@ -30,5 +31,8 @@ class Pattern
         /** Small amount */
         float_t sa;
 };
+
+typedef std::vector<Pattern> pattern_vector;
+typedef std::vector<Pattern>::const_iterator pattern_const_iter;
 
 #endif

@@ -10,19 +10,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cmath>
-#include <vector>
-#include "pattern.h" 
-
-/**
- * One Turing pattern/one scale.
- */
-struct pattern
-{
-	uint32_t act_r; /**< Activator radius */
-	uint32_t inh_r; /**< Inhibitor radius */
-	float_t sa;		/**< Small amount */
-	uint32_t wt;	/**< Weight */
-};
+#include "pattern.h"
 
 /**************************************************************************//**
  * Initializes the image with random values.
@@ -36,13 +24,12 @@ void blind_quarter_init_image(const size_t w, const size_t h, float_t* im);
 /**************************************************************************//**
  * One step of the main algorithm.
  * 
- * @param[in] p Vector of Turing patterns
- * @param[in] n Number of Turing patterns
+ * @param[in] patterns Vector of Turing patterns
  * @param[in] w Image width
  * @param[in] h Image height
  * @param[inout] im Image (values in the interval [0; 1])
  *****************************************************************************/
-void blind_quarter_step(std::vector<Pattern>* p, const size_t w, const size_t h,
+void blind_quarter_step(pattern_vector& patterns, const size_t w, const size_t h,
     float_t* im);
 
 #endif

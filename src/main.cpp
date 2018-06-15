@@ -8,7 +8,6 @@
 #include <cstdlib>
 #include <cmath>
 #include <iostream>
-#include <vector>
 #include <SDL.h>
 #include <SDL_keycode.h>
 #include "pattern.h"
@@ -66,13 +65,13 @@ int main(int argc, char** argv)
     }
     
     // Initialize the patterns
-    std::vector<Pattern> patterns;
+    pattern_vector patterns;
     for (size_t i = 0; i < N_SCALES; i++)
 	{
         patterns.push_back(Pattern(act_r_all[i], inh_r_all[i], wt_all[i],
             sa_all[i]));
     }
-    
+
     // Initialize the image generation
     float_t *image = new float_t[width*height];
     uint32_t *image_colormapped = new uint32_t[width*height];
@@ -118,7 +117,7 @@ int main(int argc, char** argv)
         }
 
         // Update image
-        blind_quarter_step(&patterns, width, height, image);
+        blind_quarter_step(patterns, width, height, image);
         colormap_ARGB8888(width, height, image, image_colormapped);
     
         // Show updated image
@@ -136,7 +135,7 @@ int main(int argc, char** argv)
     
     delete [] image;
     delete [] image_colormapped;
- 
+
     return 0;
 }
 

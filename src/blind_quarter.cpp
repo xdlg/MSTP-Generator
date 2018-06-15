@@ -27,22 +27,22 @@ void blind_quarter_init_image(const size_t w, const size_t h, float_t* im)
 	}
 }
 
-void blind_quarter_step(std::vector<Pattern>* p, const size_t w, const size_t h,
+void blind_quarter_step(pattern_vector& patterns, const size_t w, const size_t h,
     float_t* im)
 {   
-    if (p->size() > 0)
+    if (!patterns.empty())
     {
         float_t* var = new float_t[w*h];
-        Pattern** best_patterns = new Pattern*[w*h];
+        const Pattern** best_patterns = new const Pattern*[w*h];
         
-        // For each scale...
-        for (size_t i = 0; i < p->size(); i++)
+        // For each pattern...
+        for (pattern_const_iter p = patterns.begin(); p != patterns.end(); p++)
         {
             // Compute activator and inhibitor arrays
             float_t* act = new float_t[w*h];
             float_t* inh = new float_t[w*h];
-            blur(w, h, (*p)[i].get_act_r(), (*p)[i].get_wt(), im, act);
-            blur(w, h, (*p)[i].get_inh_r(), (*p)[i].get_wt(), im, inh);
+            blur(w, h, p->get_act_r(), p->get_wt(), im, act);
+            blur(w, h, p->get_inh_r(), p->get_wt(), im, inh);
             
             // For each pixel...
             for (size_t j = 0; j < w*h; j++)
@@ -50,14 +50,13 @@ void blind_quarter_step(std::vector<Pattern>* p, const size_t w, const size_t h,
                 // Update the variation array if the variation for this pixel
                 // is smaller than the one already stored. This way,
                 // the variation array always stores the smallest variation.
-                // When processing the first scale (i == 0), the variation
-                // array is always updated, so we don't need to initialize it
-                // beforehand.
+                // When processing the first pattern, the variation array is
+                // always updated, so we don't need to initialize it beforehand.
                 float_t var_new = act[j] - inh[j];
-                if ((fabs(var_new) < fabs(var[j])) || (i == 0))
+                if ((fabs(var_new) < fabs(var[j])) || (p == patterns.begin()))
                 {
                     var[j] = var_new;
-                    best_patterns[j] = &((*p)[i]);
+                    best_patterns[j] = &(*p);
                 }
             }
             
@@ -78,7 +77,7 @@ void blind_quarter_step(std::vector<Pattern>* p, const size_t w, const size_t h,
                 im[j] -= best_patterns[j]->get_sa();
             }
         }
-        
+
         delete [] var;
         delete [] best_patterns;
         
