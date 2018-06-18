@@ -8,28 +8,31 @@
 #include <cstdlib>
 #include <cmath>
 #include <iostream>
+#include <ctime>
 #include <SDL.h>
 #include <SDL_keycode.h>
 #include "pattern.h"
 #include "blind_quarter.h"
 #include "colormap.h"
 
-#define N_SCALES    5   /**< Number of Turing patterns/scales */
-#define N_ARGUMENTS 4   /**< Required number of command line arguments */
-#define WIDTH_MIN   100 /**< Minimum image width */
-#define HEIGHT_MIN  100 /**< Minimum image height */
+#define N_PATTERNS_MAX      5   /**< Max number of Turing patterns */
+#define N_PATTERNS_MIN      1   /**< Min number of Turing patterns */
+#define N_PATTERNS_START    3   /**< Start number of Turing patterns */
+#define N_ARGUMENTS         4   /**< Required number of command line arguments */
+#define WIDTH_MIN           100 /**< Minimum image width */
+#define HEIGHT_MIN          100 /**< Minimum image height */
 
 /** 
 * Parameters of the Turing patterns.
 */
 /** Activator radii */
-static const uint32_t act_r_all[N_SCALES] = {50, 25, 10, 5, 1};
+static const uint32_t act_r_all[N_PATTERNS_MAX] = {50, 25, 10, 5, 1};
 /** Inhibitor radii */
-static const uint32_t inh_r_all[N_SCALES] = {100, 50, 20, 10, 2};
+static const uint32_t inh_r_all[N_PATTERNS_MAX] = {100, 50, 20, 10, 2};
 /** Small amounts */
-static const float_t sa_all[N_SCALES] = {0.05, 0.04, 0.03, 0.02, 0.01};
+static const float_t sa_all[N_PATTERNS_MAX] = {0.05, 0.04, 0.03, 0.02, 0.01};
 /** Weights */
-static const uint32_t wt_all[N_SCALES] = {1, 1, 1, 1, 1};
+static const uint32_t wt_all[N_PATTERNS_MAX] = {1, 1, 1, 1, 1};
 
 /**************************************************************************//**
  * Parses the command line arguments.
@@ -66,7 +69,7 @@ int main(int argc, char** argv)
     
     // Initialize the patterns
     pattern_vector patterns;
-    for (size_t i = 0; i < N_SCALES; i++)
+    for (size_t i = 0; i < N_PATTERNS_START; i++)
 	{
         patterns.push_back(Pattern(act_r_all[i], inh_r_all[i], wt_all[i],
             sa_all[i]));
@@ -99,20 +102,26 @@ int main(int argc, char** argv)
                     quit = true;
                     break;
                 case SDL_MOUSEBUTTONDOWN:
+                    // Reset the picture
                     blind_quarter_init_image(width, height, image);
                     break;
-                //~ case SDL_KEYDOWN:
-                    //~ SDL_Keycode key = event.key.keysym.sym;
-                    //~ if (key == SDLK_KP_PLUS)
-                    //~ {
-                        //~ Pattern* test = get_random_pattern(width, height);
-                        //~ patterns.push_back(*test);
-                    //~ }
-                    //~ if (key == SDLK_KP_MINUS)
-                    //~ {
-                        //~ patterns.pop_back();
-                    //~ }
-                    //~ break;
+                case SDL_KEYDOWN:
+                    SDL_Keycode key = event.key.keysym.sym;
+                    // Add a pattern
+                    if ((key == SDLK_KP_PLUS)
+                        && (patterns.size() < N_PATTERNS_MAX))
+                    {
+                        size_t i = patterns.size();
+                        patterns.push_back(Pattern(act_r_all[i], inh_r_all[i],
+                            wt_all[i], sa_all[i]));
+                    }
+                    // Remove a pattern
+                    else if ((key == SDLK_KP_MINUS)
+                        && (patterns.size() > N_PATTERNS_MIN))
+                    {
+                        patterns.pop_back();
+                    }
+                    break;
             }
         }
 
