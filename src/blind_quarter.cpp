@@ -8,6 +8,7 @@
 #include <ctime>
 #include <cfloat>
 #include "blur.h"
+#include "symmetry.h"
 
 /**************************************************************************//**
  * Normalizes the image to the interval [0; 1].
@@ -42,7 +43,9 @@ void blind_quarter_step(pattern_vector& patterns, const size_t w, const size_t h
             float_t* act = new float_t[w*h];
             float_t* inh = new float_t[w*h];
             blur(w, h, p->get_act_r(), p->get_wt(), im, act);
+            symmetry_apply(p->get_sym(), w, h, act);
             blur(w, h, p->get_inh_r(), p->get_wt(), im, inh);
+            symmetry_apply(p->get_sym(), w, h, inh);
             
             // For each pixel...
             for (size_t j = 0; j < w*h; j++)

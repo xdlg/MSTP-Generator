@@ -13,7 +13,8 @@ LDFLAGS = $(SDL_LIB)
 
 all: $(EXE)
 
-$(EXE): $(BUILD)/main.o $(BUILD)/pattern.o $(BUILD)/blind_quarter.o $(BUILD)/blur.o $(BUILD)/colormap.o
+$(EXE): $(BUILD)/main.o $(BUILD)/pattern.o $(BUILD)/blind_quarter.o \
+		$(BUILD)/blur.o $(BUILD)/colormap.o $(BUILD)/symmetry.o
 	mkdir -p $(BIN)
 	$(CXX) $^ $(LDFLAGS) -o $(BIN)/$@
 	

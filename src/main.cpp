@@ -14,6 +14,7 @@
 #include "pattern.h"
 #include "blind_quarter.h"
 #include "colormap.h"
+#include "symmetry.h"
 
 #define N_PATTERNS_MAX      5   /**< Max number of Turing patterns */
 #define N_PATTERNS_MIN      1   /**< Min number of Turing patterns */
@@ -29,10 +30,12 @@
 static const uint32_t act_r_all[N_PATTERNS_MAX] = {50, 25, 10, 5, 1};
 /** Inhibitor radii */
 static const uint32_t inh_r_all[N_PATTERNS_MAX] = {100, 50, 20, 10, 2};
-/** Small amounts */
-static const float_t sa_all[N_PATTERNS_MAX] = {0.05, 0.04, 0.03, 0.02, 0.01};
 /** Weights */
 static const uint32_t wt_all[N_PATTERNS_MAX] = {1, 1, 1, 1, 1};
+/** Symmetry orders */
+static const uint32_t sym_all[N_PATTERNS_MAX] = {3, 1, 1, 1, 1};
+/** Small amounts */
+static const float_t sa_all[N_PATTERNS_MAX] = {0.05, 0.04, 0.03, 0.02, 0.01};
 
 /**************************************************************************//**
  * Parses the command line arguments.
@@ -72,13 +75,14 @@ int main(int argc, char** argv)
     for (size_t i = 0; i < N_PATTERNS_START; i++)
 	{
         patterns.push_back(Pattern(act_r_all[i], inh_r_all[i], wt_all[i],
-            sa_all[i]));
+            sym_all[i], sa_all[i]));
     }
 
     // Initialize the image generation
     float_t *image = new float_t[width*height];
     uint32_t *image_colormapped = new uint32_t[width*height];
     colormap_init(colors);
+    symmetry_init(width, height);
     blind_quarter_init_image(width, height, image);
     
     // Initialize SDL
@@ -113,7 +117,7 @@ int main(int argc, char** argv)
                     {
                         size_t i = patterns.size();
                         patterns.push_back(Pattern(act_r_all[i], inh_r_all[i],
-                            wt_all[i], sa_all[i]));
+                            wt_all[i], sym_all[i], sa_all[i]));
                     }
                     // Remove a pattern
                     else if ((key == SDLK_KP_MINUS)

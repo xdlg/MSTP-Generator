@@ -15,10 +15,12 @@
 class Pattern
 {
     public:
-        Pattern(uint32_t act_r, uint32_t inh_r, uint32_t wt, float_t sa);
+        Pattern(uint32_t act_r, uint32_t inh_r, uint32_t wt, uint32_t sym,
+            float_t sa);
         uint32_t get_act_r(void) const;
         uint32_t get_inh_r(void)const;
         uint32_t get_wt(void) const;
+        uint32_t get_sym(void) const;
         float_t get_sa(void) const;
         
     private:
@@ -28,6 +30,8 @@ class Pattern
         uint32_t inh_r;
         /** Weight */
         uint32_t wt;
+        /** Symmetry order */
+        uint32_t sym;
         /** Small amount */
         float_t sa;
 };
