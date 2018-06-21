@@ -33,7 +33,7 @@ static const uint32_t inh_r_all[N_PATTERNS_MAX] = {100, 50, 20, 10, 2};
 /** Weights */
 static const uint32_t wt_all[N_PATTERNS_MAX] = {1, 1, 1, 1, 1};
 /** Symmetry orders */
-static const uint32_t sym_all[N_PATTERNS_MAX] = {3, 1, 1, 1, 1};
+static const uint32_t sym_all[N_PATTERNS_MAX] = {2, 1, 4, 1, 1};
 /** Small amounts */
 static const float_t sa_all[N_PATTERNS_MAX] = {0.05, 0.04, 0.03, 0.02, 0.01};
 

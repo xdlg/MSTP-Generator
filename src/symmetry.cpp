@@ -9,16 +9,15 @@
 /** Minimum symmetry order */
 #define SYM_ORDER_MIN   2
 /** Maximum symmetry order */
-#define SYM_ORDER_MAX   5
+#define SYM_ORDER_MAX   4
 /** Pi */
 #define PI              3.14159265
 
 /**
  * A symmetry lookup table is a list of symmetrical pixel coordinates.
- * Assuming that the symmetry order M is applied to N pixels, the lookup table
- * should have the dimensions [N][M]. Each row corresponds to the linear
- * coordinates of the original pixel, and each column to the linear coordinates
- * of all mirrored pixels.
+ * Each row is a group of symmetrical pixel coordinates. The coordinates are
+ * linear (i.e. i = x + y*w, w being the width of the image).
+ * In each row there are N elements (N = symmetry order).
  * 
  * For example, let's say we have a 2*2 image and a symmetry order 2.
  * The linear pixels coordinates are shown below (in a 2D array for clarity).
@@ -29,95 +28,120 @@
  *  -------
  * 
  * By rotational symmetry around the center of the image, pixel 0 is
- * symmetrical with pixel 3, 1 with 2, 2 with 1 and 3 with 0. (On a small
- * example it's obvious, but for the general case the mirrored coordinates must
- * be calculated with a rotation matrix.) After calculation, the resulting
+ * symmetrical with pixel 3 and 1 with 2. After calculation, the resulting
  * lookup table should look like this:
  *  -------
  * | 0 | 3 |
  *  -------
  * | 1 | 2 |
  *  -------
- * | 2 | 1 |
- *  -------
- * | 3 | 0 |
- *  -------
- * 
- * If we had a symmetry order 4:
- *  ---------------
- * | 0 | 1 | 3 | 2 |
- *  ----------------
- * | 1 | 3 | 2 | 0 |
- *  ---------------
- * | 2 | 0 | 1 | 3 |
- *  ---------------
- * | 3 | 2 | 0 | 1 |
- *  ---------------
- * 
- * And so on. Of course there are duplicates, which could be a problem with the
- * resulting symmetries. But at the moment it's much simpler to caculate the
- * mirrors for all pixels than to determine which pixels can be skipped because
- * their mirrors have already been found.
  */
 typedef std::vector<std::vector<size_t>> symmetry_lookup;
 
 /** Symmetry lookup tables for all orders up to SYMMETRY_ORDER_MAX */
 static std::vector<symmetry_lookup> symmetry_lookup_all;
 
+/**************************************************************************//**
+ * Get the lookup table for symmetry order 2.
+ * 
+ * This is a rotational symmetry, because for order 2 it's very simple.
+ * 
+ * @param[in] w Image width
+ * @param[in] h Image height
+ * 
+ * @return Lookup table
+ *****************************************************************************/
+static symmetry_lookup symmetry_init_order_2(const size_t w, const size_t h);
+
+/**************************************************************************//**
+ * Get the lookup table for symmetry order 3.
+ * 
+ * Not implemented at the moment.
+ * 
+ * @param[in] w Image width
+ * @param[in] h Image height
+ * 
+ * @return Lookup table
+ *****************************************************************************/
+static symmetry_lookup symmetry_init_order_3(const size_t w, const size_t h);
+
+/**************************************************************************//**
+ * Get the lookup table for symmetry order 4.
+ * 
+ * For the moment it's simply a horizontal + vertical mirroring, because for a
+ * rotational symmetry we would have to deal with unequal width and height,
+ * which isn't a priority right now.
+ * 
+ * @param[in] w Image width
+ * @param[in] h Image height
+ * 
+ * @return Lookup table
+ *****************************************************************************/
+static symmetry_lookup symmetry_init_order_4(const size_t w, const size_t h);
+
 void symmetry_init(const size_t w, const size_t h)
 {    
-    for (size_t sym_order = SYM_ORDER_MIN; sym_order < SYM_ORDER_MAX; sym_order++)
+    for (size_t sym_order = SYM_ORDER_MIN; sym_order <= SYM_ORDER_MAX; sym_order++)
     {
-        // Symmetry lookup table for this order 
-        symmetry_lookup sym(w*h, std::vector<size_t>(sym_order));
+        symmetry_lookup sym;
         
-        // For each pixel coordinates...
-        for (size_t x = 0; x < w; x++)
+        if (sym_order == 2)
         {
-            for (size_t y = 0; y < h; y++)
-            {
-                // The first element is always the original coordinates
-                sym[x + y*w][0] = x + y*w;
-                
-                // The rest is for the mirrored elements...
-                for (size_t i = 1; i < sym_order; i++)
-                {
-                    // Since we want a rotational symmetry around the center,
-                    // we first need the coordinates of the center
-                    double_t x_c = ((double_t)w - 1.0)/2.0;
-                    double_t y_c = ((double_t)h - 1.0)/2.0;
-                    
-                    // The coordinates are translated relatively to the center
-                    double_t x_t = (double_t)x - x_c;
-                    double_t y_t = (double_t)y - y_c;
-                    
-                    // Calculate the rotated coordinates
-                    double_t cos_i = std::cos(i*M_PI/sym_order);
-                    double_t sin_i = std::sin(i*M_PI/sym_order);
-                    double_t x_r = x_t*cos_i - y_t*sin_i;
-                    double_t y_r = x_t*sin_i + y_t*cos_i;
-                    
-                    // Bring the coordinates back to the original referential
-                    x_r += x_c;
-                    y_r += y_c;
-                    
-                    // If the new (linear) coordinates are out of bounds, just
-                    // take the original coordinates. The symmetry operations
-                    // for that specific point will have no effect, which
-                    // shouldn't be too visible amid the general chaos.
-                    double_t xy_r = std::round(x_r + y_r*(double_t)w);
-                    if ((xy_r < 0.0) || (xy_r >= (double_t)(w*h)))
-                    {
-                        xy_r = x + y*w;
-                    }
-                    
-                    sym[x + y*w][i] = xy_r;
-                }
-            }
+            sym = symmetry_init_order_2(w, h);
         }
-        
+        else if (sym_order == 3)
+        {
+            sym = symmetry_init_order_3(w, h);
+        }
+        else if (sym_order == 4)
+        {
+            sym = symmetry_init_order_4(w, h);
+        }
+                
         symmetry_lookup_all.push_back(sym);
     }
+}
+
+static symmetry_lookup symmetry_init_order_2(const size_t w, const size_t h)
+{
+    symmetry_lookup sym;
+    
+    for (size_t i = 0; i < w*h/2; i++)
+    {
+        std::vector<size_t> mirrors(2);
+        mirrors[0] = i;
+        mirrors[1] = w*h - 1 - i;
+        sym.push_back(mirrors);
+    }
+    
+    return sym;
+}
+
+static symmetry_lookup symmetry_init_order_3(const size_t w, const size_t h)
+{
+    symmetry_lookup sym;
+    
+    return sym;
+}
+
+static symmetry_lookup symmetry_init_order_4(const size_t w, const size_t h)
+{
+    symmetry_lookup sym;
+    
+    for (size_t x = 0; x < w/2; x++)
+    {
+        for (size_t y = 0; y < h/2; y++)
+        {
+            std::vector<size_t> mirrors(4);
+            mirrors[0] = x + y*w;
+            mirrors[1] = (w - 1 - x) + y*w;
+            mirrors[2] = x + (h - 1 - y)*w;
+            mirrors[3] = (w - 1 - x) + (h - 1 - y)*w;
+            sym.push_back(mirrors);
+        }
+    }
+    
+    return sym;
 }
 
 void symmetry_apply(const uint32_t order, const size_t w, const size_t h,
@@ -127,7 +151,7 @@ void symmetry_apply(const uint32_t order, const size_t w, const size_t h,
     {
         symmetry_lookup* sym = &symmetry_lookup_all[order - SYM_ORDER_MIN];
         
-        for (size_t i = 0; i < w*h; i++)
+        for (size_t i = 0; i < (*sym).size(); i++)
         {
             float_t sum = 0.0;
             for (size_t j = 0; j < order; j++)
