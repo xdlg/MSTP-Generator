@@ -2,7 +2,7 @@ BIN = bin
 BUILD = build
 INCLUDE = include
 SRC = src
-EXE = main
+EXE = blind_quarter
 
 CXX = g++
 SDL_LIB = -L/usr/local/lib -lSDL2 -Wl,-rpath=/usr/local/lib
