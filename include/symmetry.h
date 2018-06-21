@@ -21,7 +21,7 @@
 void symmetry_init(const size_t width, const size_t height);
 
 /**************************************************************************//**
- * Applies rotational symmetry to the image.
+ * Applies symmetry to the image.
  * 
  * The symmetry lookup tables must have been initialized beforehand with
  * symmetry_init(). For the moment only symmetry orders 2 and 4 are supported.

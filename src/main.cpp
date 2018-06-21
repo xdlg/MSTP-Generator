@@ -18,7 +18,7 @@
 
 #define N_PATTERNS_MAX      5   /**< Max number of Turing patterns */
 #define N_PATTERNS_MIN      1   /**< Min number of Turing patterns */
-#define N_PATTERNS_START    3   /**< Start number of Turing patterns */
+#define N_PATTERNS_START    1   /**< Start number of Turing patterns */
 #define N_ARGUMENTS         4   /**< Required number of command line arguments */
 #define WIDTH_MIN           100 /**< Minimum image width */
 #define HEIGHT_MIN          100 /**< Minimum image height */

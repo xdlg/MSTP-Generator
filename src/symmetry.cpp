@@ -19,21 +19,23 @@
  * linear (i.e. i = x + y*w, w being the width of the image).
  * In each row there are N elements (N = symmetry order).
  * 
- * For example, let's say we have a 2*2 image and a symmetry order 2.
+ * For example, let's say we have a 3*2 image and a symmetry order 2.
  * The linear pixels coordinates are shown below (in a 2D array for clarity).
- *  -------
- * | 0 | 1 |
- *  -------
- * | 2 | 3 |
- *  -------
+ *  -----------
+ * | 0 | 1 | 2 |
+ *  -----------
+ * | 3 | 4 | 5 |
+ *  -----------
  * 
  * By rotational symmetry around the center of the image, pixel 0 is
- * symmetrical with pixel 3 and 1 with 2. After calculation, the resulting
- * lookup table should look like this:
+ * symmetrical with pixel 5, 1 with 4 and 2 with 5. The corresponding lookup
+ * table should look like this:
  *  -------
- * | 0 | 3 |
+ * | 0 | 5 |
  *  -------
- * | 1 | 2 |
+ * | 1 | 4 |
+ *  -------
+ * | 2 | 3 |
  *  -------
  */
 typedef std::vector<std::vector<size_t>> symmetry_lookup;
