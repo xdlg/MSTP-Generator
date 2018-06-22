@@ -23,6 +23,9 @@
 #define WIDTH_MIN           100 /**< Minimum image width */
 #define HEIGHT_MIN          100 /**< Minimum image height */
 
+#define FPS_CAP         30
+#define FPS_AVERAGING   (1000/FPS_CAP)
+
 /** Image size */
 static size_t width;
 /** Image width */
@@ -59,6 +62,13 @@ static const float_t sa_all[N_PATTERNS_MAX] = {0.05, 0.04, 0.03, 0.02, 0.01};
 static bool parse_args(int argc, char** argv, size_t* width, size_t* height,
     std::string* colors);
     
+/**************************************************************************//**
+ * Handles the SDL events.
+ * 
+ * @param[in] event Active event
+ * 
+ * @return true if it's time to quit
+ *****************************************************************************/
 static bool handle_event(const SDL_Event event);
 
 int main(int argc, char** argv)
@@ -94,7 +104,12 @@ int main(int argc, char** argv)
         SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, width, height);
     SDL_Event event;
     bool quit = false;
- 
+    
+    //~ uint32_t frame_t[FPS_AVERAGING];
+    //~ memset(frame_t, 0, sizeof(frame_t));
+    //~ uint32_t ticks_prev = SDL_GetTicks();
+    //~ size_t frame_i = 0;
+     
     while (!quit)
     {    
         // Handle events
@@ -102,16 +117,32 @@ int main(int argc, char** argv)
         {
             quit = handle_event(event);
         }
+        
+        //~ uint32_t t_since = SDL_GetTicks() - ticks_prev;
+        
+        //~ if (t_since >= 1000/FPS_CAP)
+        {
+            //~ frame_t[frame_i] = t_since;
+            //~ ticks_prev = SDL_GetTicks();
+            //~ double_t fps;
+            //~ for (size_t i = 0; i < FPS_AVERAGING; i++)
+            //~ {
+                //~ fps += frame_t[i];
+            //~ }
+            //~ fps /= FPS_AVERAGING;
+            //~ fps = 1000.0 / fps;
+            //~ frame_i = (frame_i + 1)%FPS_AVERAGING;
 
-        // Update image
-        blind_quarter_step(patterns, width, height, image);
-        colormap_ARGB8888(width, height, image, image_colormapped);
-    
-        // Show updated image
-        SDL_UpdateTexture(texture, NULL, image_colormapped,
-            width*sizeof(uint32_t));
-        SDL_RenderCopy(renderer, texture, NULL, NULL);
-        SDL_RenderPresent(renderer);
+            // Update image
+            blind_quarter_step(patterns, width, height, image);
+            colormap_ARGB8888(width, height, image, image_colormapped);
+        
+            // Show updated image
+            SDL_UpdateTexture(texture, NULL, image_colormapped,
+                width*sizeof(uint32_t));
+            SDL_RenderCopy(renderer, texture, NULL, NULL);
+            SDL_RenderPresent(renderer);
+        }
     }
     
     // Clean up SDL
@@ -202,3 +233,5 @@ static bool handle_event(const SDL_Event event)
     
     return quit;
 }
+
+
