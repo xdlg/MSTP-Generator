@@ -23,6 +23,15 @@
 #define WIDTH_MIN           100 /**< Minimum image width */
 #define HEIGHT_MIN          100 /**< Minimum image height */
 
+/** Image size */
+static size_t width;
+/** Image width */
+static size_t height;
+/** Image */
+static float_t *image;
+/** Vector of Turing patterns */
+static pattern_vector patterns;
+    
 /** 
 * Parameters of the Turing patterns.
 */
@@ -49,29 +58,20 @@ static const float_t sa_all[N_PATTERNS_MAX] = {0.05, 0.04, 0.03, 0.02, 0.01};
  *****************************************************************************/
 static bool parse_args(int argc, char** argv, size_t* width, size_t* height,
     std::string* colors);
+    
+static bool handle_event(const SDL_Event event);
 
 int main(int argc, char** argv)
 {       
-    size_t width;
-    size_t height;
     std::string colors;
     bool parsing_error = parse_args(argc, argv, &width, &height, &colors);
     
     if (parsing_error)
     {
-        std::cerr << "Usage: " << argv[0]
-            << " image_width image_height color_map" << std::endl;
-        std::cerr << "image_width >= " << std::to_string(WIDTH_MIN)
-            << std::endl;
-        std::cerr << "image_height >= " << std::to_string(HEIGHT_MIN)
-            << std::endl;
-        std::cerr << "color_map = [bw|rainbow|holiday|neon|lava|ice|dawn|toxic]"
-            << std::endl;
         return 1;
     }
     
     // Initialize the patterns
-    pattern_vector patterns;
     for (size_t i = 0; i < N_PATTERNS_START; i++)
 	{
         patterns.push_back(Pattern(act_r_all[i], inh_r_all[i], wt_all[i],
@@ -79,7 +79,7 @@ int main(int argc, char** argv)
     }
 
     // Initialize the image generation
-    float_t *image = new float_t[width*height];
+    image = new float_t[width*height];
     uint32_t *image_colormapped = new uint32_t[width*height];
     colormap_init(colors);
     symmetry_init(width, height);
@@ -87,7 +87,7 @@ int main(int argc, char** argv)
     
     // Initialize SDL
     SDL_Init(SDL_INIT_VIDEO);
-    SDL_Window * window = SDL_CreateWindow("Muscatupa",
+    SDL_Window * window = SDL_CreateWindow("BlindQuarter",
         SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, 0);
     SDL_Renderer * renderer = SDL_CreateRenderer(window, -1, 0);
     SDL_Texture * texture = SDL_CreateTexture(renderer,
@@ -100,33 +100,7 @@ int main(int argc, char** argv)
         // Handle events
         while (SDL_PollEvent(&event))
         {
-            switch(event.type)
-            {
-                case SDL_QUIT:
-                    quit = true;
-                    break;
-                case SDL_MOUSEBUTTONDOWN:
-                    // Reset the picture
-                    blind_quarter_init_image(width, height, image);
-                    break;
-                case SDL_KEYDOWN:
-                    SDL_Keycode key = event.key.keysym.sym;
-                    // Add a pattern
-                    if ((key == SDLK_KP_PLUS)
-                        && (patterns.size() < N_PATTERNS_MAX))
-                    {
-                        size_t i = patterns.size();
-                        patterns.push_back(Pattern(act_r_all[i], inh_r_all[i],
-                            wt_all[i], sym_all[i], sa_all[i]));
-                    }
-                    // Remove a pattern
-                    else if ((key == SDLK_KP_MINUS)
-                        && (patterns.size() > N_PATTERNS_MIN))
-                    {
-                        patterns.pop_back();
-                    }
-                    break;
-            }
+            quit = handle_event(event);
         }
 
         // Update image
@@ -179,5 +153,52 @@ static bool parse_args(int argc, char** argv, size_t* width, size_t* height,
         }
     }
     
+    if (error)
+    {
+        std::cerr << "Usage: " << argv[0]
+            << " image_width image_height color_map" << std::endl;
+        std::cerr << "image_width >= " << std::to_string(WIDTH_MIN)
+            << std::endl;
+        std::cerr << "image_height >= " << std::to_string(HEIGHT_MIN)
+            << std::endl;
+        std::cerr << "color_map = [bw|rainbow|holiday|neon|lava|ice|dawn|toxic]"
+            << std::endl;
+    }
+    
     return error;
+}
+
+static bool handle_event(const SDL_Event event)
+{
+    bool quit = false;
+    
+    switch(event.type)
+    {
+        case SDL_QUIT:
+            quit = true;
+            break;
+        case SDL_MOUSEBUTTONDOWN:
+            // Reset the picture
+            blind_quarter_init_image(width, height, image);
+            break;
+        case SDL_KEYDOWN:
+            SDL_Keycode key = event.key.keysym.sym;
+            // Add a pattern
+            if ((key == SDLK_KP_PLUS)
+                && (patterns.size() < N_PATTERNS_MAX))
+            {
+                size_t i = patterns.size();
+                patterns.push_back(Pattern(act_r_all[i], inh_r_all[i],
+                    wt_all[i], sym_all[i], sa_all[i]));
+            }
+            // Remove a pattern
+            else if ((key == SDLK_KP_MINUS)
+                && (patterns.size() > N_PATTERNS_MIN))
+            {
+                patterns.pop_back();
+            }
+            break;
+    }
+    
+    return quit;
 }

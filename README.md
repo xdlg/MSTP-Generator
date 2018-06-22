@@ -1,6 +1,8 @@
 BlindQuarter - Multi-Scale Turing Patterns
 ===
 
+[Hackaday project](https://hackaday.io/project/13180-blindquarter)
+
 Description
 ---
 
