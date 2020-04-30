@@ -36,12 +36,14 @@ VideoEncoder::~VideoEncoder() {
 
 int VideoEncoder::open(std::string fileName) {
     int ret = avcodec_open2(context, codec, NULL);
-    if (ret < 0)
+    if (ret < 0) {
         return -1;
+    }
 
     file = fopen(fileName.c_str(), "wb");
-    if (!file)
+    if (!file) {
         return -1;
+    }
 
     frame = av_frame_alloc();
     if (!frame) {
@@ -102,16 +104,18 @@ int VideoEncoder::encodeRgbData(const uint8_t* rgbData, int64_t timestamp) {
 
     frame->pts = timestamp;
     int ret = encodeFrame(frame);
-    if (ret < 0)
+    if (ret < 0) {
         return -1;
+    }
 
     return 0;
 }
 
 int VideoEncoder::encodeFrame(AVFrame* frame) {
     int ret = avcodec_send_frame(context, frame);
-    if (ret < 0)
+    if (ret < 0) {
         return -1;
+    }
 
     while (ret >= 0) {
         ret = avcodec_receive_packet(context, packet);

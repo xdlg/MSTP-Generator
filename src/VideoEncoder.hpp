@@ -3,6 +3,9 @@
  * @brief Libav wrapper for video encoding
  */
 
+#ifndef VIDEO_ENCODER_HPP
+#define VIDEO_ENCODER_HPP
+
 #include <string>
 
 // Why extern? See https://libav.org/documentation/faq.html
@@ -82,3 +85,5 @@ private:
      */
     int encodeFrame(AVFrame* frame);
 };
+
+#endif

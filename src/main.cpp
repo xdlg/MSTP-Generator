@@ -3,12 +3,16 @@
  * @brief Main
  */
 
+#include "Image.hpp"
+#include "PatternGenerator.hpp"
 #include "VideoEncoder.hpp"
+#include <cstdint>
+#include <cstdlib>
 #include <iostream>
 
 int main(int argc, char** argv) {
-    int width = 800;
-    int height = 600;
+    std::size_t width = 800;
+    std::size_t height = 600;
     int bitrate = 400000;
     int framerate = 25;
 
@@ -20,23 +24,16 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    uint8_t* rgbData = new uint8_t[3 * width * height];
-    for (int64_t j = 0; j < 3 * width * height; j += 3) {
-        rgbData[j] = 100;
-        rgbData[j + 1] = 0;
-        rgbData[j + 2] = 200;
-    }
+    PatternGenerator patternGenerator(width, height);
 
     for (int64_t i = 0; i < 25; i++) {
-        ret = encoder.encodeRgbData(rgbData, i);
+        ret = encoder.encodeRgbData(patternGenerator.getNextImageData(), i);
         if (ret < 0) {
             std::cerr << "Cannot encode data\n";
             encoder.close();
             std::abort();
         }
     }
-
-    delete[] rgbData;
 
     encoder.close();
 
