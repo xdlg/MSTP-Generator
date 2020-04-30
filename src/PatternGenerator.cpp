@@ -14,6 +14,10 @@ const uint8_t* PatternGenerator::getNextImageData() {
     return image.data;
 }
 
+void PatternGenerator::addScale(Scale& scale) {
+    scales.push_back(scale);
+}
+
 void PatternGenerator::randomizeImage() {
     for (std::size_t j = 0; j < Image::BYTES_PER_PIXEL * width * height;
          j += Image::BYTES_PER_PIXEL) {

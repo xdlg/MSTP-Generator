@@ -7,9 +7,11 @@
 #define PATTERN_GENERATOR_HPP
 
 #include "Image.hpp"
+#include "Scale.hpp"
 #include <cstdint>
 #include <cstdlib>
 #include <random>
+#include <vector>
 
 class PatternGenerator {
 public:
@@ -26,6 +28,12 @@ public:
      */
     const uint8_t* getNextImageData();
 
+    /**
+     * @brief Adds one scale to the generator
+     * @param[in] scale Scale to add
+     */
+    void addScale(Scale& scale);
+
 private:
     std::size_t width;
     std::size_t height;
@@ -33,6 +41,7 @@ private:
     std::random_device randomDevice;
     std::mt19937 randomGenerator;
     std::uniform_int_distribution<uint32_t> randomDistribution;
+    std::vector<Scale> scales;
 
     /**
      * @brief Randomizes the image

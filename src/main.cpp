@@ -5,6 +5,7 @@
 
 #include "Image.hpp"
 #include "PatternGenerator.hpp"
+#include "Scale.hpp"
 #include "VideoEncoder.hpp"
 #include <cstdint>
 #include <cstdlib>
@@ -25,6 +26,8 @@ int main(int argc, char** argv) {
     }
 
     PatternGenerator patternGenerator(width, height);
+    Scale scale(true, 100, 50, 0.05);
+    patternGenerator.addScale(scale);
 
     for (int64_t i = 0; i < 25; i++) {
         ret = encoder.encodeRgbData(patternGenerator.getNextImageData(), i);
