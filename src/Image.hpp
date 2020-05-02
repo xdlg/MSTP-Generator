@@ -11,10 +11,6 @@
 
 class Image {
 public:
-    static constexpr std::size_t BYTES_PER_PIXEL = 3;
-    /** @brief Pixel data in RGB24 format (R, G, B, R, G, B, ...) */
-    uint8_t* data;
-
     /**
      * @brief Basic constructor
      * @param[in] width Image width
@@ -24,9 +20,25 @@ public:
 
     ~Image();
 
+    /**
+     * @brief Gets the image data
+     * @return Pixel data in RGB24 format (R, G, B, R, G, B, ...)
+     */
+    const uint8_t* getData() const;
+
+    /**
+     * @brief Color maps a pattern to the image
+     * @brief pattern Pattern data in the interval [0; 1]
+     */
+    void colorMapPattern(const double* pattern);
+
 private:
+    static constexpr std::size_t BYTES_PER_PIXEL = 3;
+
     const std::size_t width;
     const std::size_t height;
+    const std::size_t size;
+    uint8_t* data;
 };
 
 #endif

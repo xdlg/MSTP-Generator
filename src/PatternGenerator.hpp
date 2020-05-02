@@ -6,47 +6,84 @@
 #ifndef PATTERN_GENERATOR_HPP
 #define PATTERN_GENERATOR_HPP
 
-#include "Image.hpp"
 #include "Scale.hpp"
 #include <cstdint>
 #include <cstdlib>
-#include <random>
 #include <vector>
 
 class PatternGenerator {
 public:
-    /**
-     * @brief Basic constructor
-     * @param[in] width Generated image width
-     * @param[in] height Generated image height
-     */
-    PatternGenerator(std::size_t width, std::size_t height);
-
-    /**
-     * @brief Gererates the next image and returns the image data
-     * @return Pixel data in RGB24 format (R, G, B, R, G, B, ...)
-     */
-    const uint8_t* getNextImageData();
-
-    /**
-     * @brief Adds one scale to the generator
-     * @param[in] scale Scale to add
-     */
-    void addScale(Scale& scale);
-
-private:
-    std::size_t width;
-    std::size_t height;
-    Image image;
-    std::random_device randomDevice;
-    std::mt19937 randomGenerator;
-    std::uniform_int_distribution<uint32_t> randomDistribution;
+    /** @brief Scales used for generating the pattern */
     std::vector<Scale> scales;
 
     /**
-     * @brief Randomizes the image
+     * @brief Basic constructor
+     * @param[in] width Generated pattern width
+     * @param[in] height Generated pattern height
      */
-    void randomizeImage();
+    PatternGenerator(std::size_t width, std::size_t height);
+
+    ~PatternGenerator();
+
+    /**
+     * @brief Updates a pattern
+     * @return Pattern data of size width * height on the interval [0;1]
+     */
+    const double* getNextPattern();
+
+private:
+    const std::size_t width;
+    const std::size_t height;
+    const std::size_t size;
+    Scale** bestScales;
+    double* pattern;
+    double* partialBlurring;
+    double* variations;
+    double* activators;
+    double* inhibitors;
+
+    /**
+     * @brief Initializes the pattern
+     */
+    void initializePattern();
+
+    /**
+     * @brief Blurs an array
+     * @param[in] width Array width
+     * @param[in] height Array height
+     * @param[in] radius Blurring radius
+     * @param[in] source Source array
+     * @param[out] destination Destination array
+     */
+    void blur(std::size_t width, std::size_t height, std::size_t radius, double* source,
+        double* destination);
+
+    /**
+     * @brief Blurs an array horizontally
+     * @param[in] width Array width
+     * @param[in] height Array height
+     * @param[in] radius Blurring radius
+     * @param[in] source Source array
+     * @param[out] destination Destination array
+     */
+    void blurHorizontal(std::size_t width, std::size_t height, std::size_t radius, double* source,
+        double* destination);
+
+    /**
+     * @brief Blurs an array vertically
+     * @param[in] width Array width
+     * @param[in] height Array height
+     * @param[in] radius Blurring radius
+     * @param[in] source Source array
+     * @param[out] destination Destination array
+     */
+    void blurVertical(std::size_t width, std::size_t height, std::size_t radius, double* source,
+        double* destination);
+
+    /**
+     * @brief Normalizes the pattern to the interval [0; 1]
+     */
+    void normalizePattern();
 };
 
 #endif

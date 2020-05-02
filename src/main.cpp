@@ -26,11 +26,24 @@ int main(int argc, char** argv) {
     }
 
     PatternGenerator patternGenerator(width, height);
-    Scale scale(true, 100, 50, 0.05);
-    patternGenerator.addScale(scale);
+    Scale scale1(true, 50, 100, 0.05);
+    patternGenerator.scales.push_back(scale1);
+    Scale scale2(true, 25, 50, 0.04);
+    patternGenerator.scales.push_back(scale2);
+    Scale scale3(true, 12, 25, 0.03);
+    patternGenerator.scales.push_back(scale3);
 
-    for (int64_t i = 0; i < 25; i++) {
-        ret = encoder.encodeRgbData(patternGenerator.getNextImageData(), i);
+    Image image(width, height);
+    std::size_t maxTimestamp = 100;
+
+    for (std::size_t t = 0; t < maxTimestamp; t++) {
+        std::cout << "Generating frame " << std::to_string(t) << "/" << std::to_string(maxTimestamp)
+                  << "..." << std::endl;
+
+        const double* pattern = patternGenerator.getNextPattern();
+        image.colorMapPattern(pattern);
+
+        ret = encoder.encodeRgbData(image.getData(), t);
         if (ret < 0) {
             std::cerr << "Cannot encode data\n";
             encoder.close();
