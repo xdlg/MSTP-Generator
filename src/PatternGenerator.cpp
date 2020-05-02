@@ -77,35 +77,29 @@ void PatternGenerator::blurHorizontal(std::size_t width, std::size_t height, std
     double* source, double* destination) {
     for (size_t y = 0; y < height; y++) {
         double sum = 0;
+        std::size_t span = radius + 1;
 
         // In the blurred picture, the first pixel of each row is the average of the source pixels
         // between x = 0 and x = radius
         for (size_t x = 0; x <= radius; x++) {
             sum += source[x + y * width];
         }
-        destination[y * width] = sum / static_cast<double>(radius + 1);
+        destination[y * width] = sum / static_cast<double>(span);
 
         // The other pixels are computed with a moving average. Pixel values are subtracted or added
-        // from the sum *only* if they are part of the picture.
+        // from the sum only if they are part of the picture.
         for (std::size_t x = 1; x < width; x++) {
-            size_t span;
-
             if ((x + radius) < width) {
                 sum += source[x + radius + y * width];
-                span = x + radius;
             } else {
-                span = width - 1;
+                span--;
             }
 
             if ((static_cast<int>(x) - static_cast<int>(radius) - 1) >= 0) {
                 sum -= source[x - radius - 1 + y * width];
+            } else {
+                span++;
             }
-
-            if ((static_cast<int>(x) - static_cast<int>(radius)) >= 0) {
-                span -= x - radius;
-            }
-
-            span += 1;
 
             destination[x + y * width] = sum / static_cast<double>(span);
         }
@@ -116,35 +110,29 @@ void PatternGenerator::blurVertical(std::size_t width, std::size_t height, std::
     double* source, double* destination) {
     for (size_t x = 0; x < width; x++) {
         double sum = 0;
+        std::size_t span = radius + 1;
 
         // In the blurred picture, the first pixel of each column is the average of the source
         // pixels between y = 0 and y = radius
         for (size_t y = 0; y <= radius; y++) {
             sum += source[x + y * width];
         }
-        destination[x] = sum / static_cast<double>(radius + 1);
+        destination[x] = sum / static_cast<double>(span);
 
         // The other pixels are computed with a moving average. Pixel values are subtracted or added
-        // from the sum *only* if they are part of the picture.
+        // from the sum only if they are part of the picture.
         for (std::size_t y = 1; y < height; y++) {
-            size_t span;
-
             if ((y + radius) < height) {
                 sum += source[x + (y + radius) * width];
-                span = y + radius;
             } else {
-                span = height - 1;
+                span--;
             }
 
             if ((static_cast<int>(y) - static_cast<int>(radius) - 1) >= 0) {
                 sum -= source[x + (y - radius - 1) * width];
+            } else {
+                span++;
             }
-
-            if ((static_cast<int>(y) - static_cast<int>(radius)) >= 0) {
-                span -= y - radius;
-            }
-
-            span += 1;
 
             destination[x + y * width] = sum / static_cast<double>(span);
         }
