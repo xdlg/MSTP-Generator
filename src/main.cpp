@@ -34,11 +34,11 @@ int main(int argc, char** argv) {
     patternGenerator.scales.push_back(scale3);
 
     Image image(width, height);
-    std::size_t maxTimestamp = 100;
+    std::size_t maxTimestamp = 250;
 
     for (std::size_t t = 0; t < maxTimestamp; t++) {
-        std::cout << "Generating frame " << std::to_string(t) << "/" << std::to_string(maxTimestamp)
-                  << "..." << std::endl;
+        std::cout << "Generating frame " << std::to_string(t + 1) << "/"
+                  << std::to_string(maxTimestamp) << "..." << std::endl;
 
         const double* pattern = patternGenerator.getNextPattern();
         image.colorMapPattern(pattern);

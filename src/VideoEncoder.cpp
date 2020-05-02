@@ -23,6 +23,7 @@ VideoEncoder::VideoEncoder(std::string codecName, int bitrate, int width, int he
     context->gop_size = 10;
     context->max_b_frames = 1;
     context->pix_fmt = AV_PIX_FMT_YUV420P;
+    context->color_range = AVCOL_RANGE_JPEG;
 
     if (codec->id == AV_CODEC_ID_H264) {
         av_opt_set(context->priv_data, "preset", "slow", 0);
@@ -72,6 +73,28 @@ int VideoEncoder::open(std::string fileName) {
     swsContext = sws_getContext(width, height, AV_PIX_FMT_RGB24, width, height, AV_PIX_FMT_YUV420P,
         SWS_BILINEAR, NULL, NULL, NULL);
     if (!swsContext) {
+        fclose(file);
+        av_frame_free(&frame);
+        return -1;
+    }
+
+    // We really just want to set the destination range to true (full range), but there doesn't seem
+    // to be a way to set only this specific option
+    int* invTable;
+    int srcRange;
+    int* table;
+    int dstRange;
+    int brightness;
+    int contrast;
+    int saturation;
+    sws_getColorspaceDetails(
+        swsContext, &invTable, &srcRange, &table, &dstRange, &brightness, &contrast, &saturation);
+
+    dstRange = true;
+    ret = sws_setColorspaceDetails(
+        swsContext, invTable, srcRange, table, dstRange, brightness, contrast, saturation);
+    if (ret < 0) {
+        sws_freeContext(swsContext);
         fclose(file);
         av_frame_free(&frame);
         return -1;
