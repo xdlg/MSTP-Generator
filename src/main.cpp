@@ -13,7 +13,7 @@
 
 int main(int argc, char** argv) {
     std::size_t width = 800;
-    std::size_t height = 600;
+    std::size_t height = 800;
     int bitrate = 400000;
     int framerate = 25;
 
@@ -26,15 +26,19 @@ int main(int argc, char** argv) {
     }
 
     PatternGenerator patternGenerator(width, height);
-    Scale scale1(true, 50, 100, 0.05);
+    Scale scale1(true, 100, 200, 0.05);
     patternGenerator.scales.push_back(scale1);
-    Scale scale2(true, 25, 50, 0.04);
+    Scale scale2(true, 50, 100, 0.04);
     patternGenerator.scales.push_back(scale2);
-    Scale scale3(true, 12, 25, 0.03);
+    Scale scale3(true, 25, 50, 0.03);
     patternGenerator.scales.push_back(scale3);
+    Scale scale4(true, 12, 25, 0.02);
+    patternGenerator.scales.push_back(scale4);
+    Scale scale5(true, 6, 12, 0.01);
+    patternGenerator.scales.push_back(scale5);
 
     Image image(width, height);
-    std::size_t maxTimestamp = 250;
+    std::size_t maxTimestamp = 100;
 
     for (std::size_t t = 0; t < maxTimestamp; t++) {
         std::cout << "Generating frame " << std::to_string(t + 1) << "/"

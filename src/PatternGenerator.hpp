@@ -37,10 +37,7 @@ private:
     const std::size_t size;
     Scale** bestScales;
     double* pattern;
-    double* partialBlurring;
     double* variations;
-    double* activators;
-    double* inhibitors;
 
     /**
      * @brief Initializes the pattern
@@ -55,7 +52,7 @@ private:
      * @param[in] source Source array
      * @param[out] destination Destination array
      */
-    void blur(std::size_t width, std::size_t height, std::size_t radius, double* source,
+    void blur(std::size_t width, std::size_t height, std::size_t radius, const double* source,
         double* destination);
 
     /**
@@ -66,8 +63,8 @@ private:
      * @param[in] source Source array
      * @param[out] destination Destination array
      */
-    void blurHorizontal(std::size_t width, std::size_t height, std::size_t radius, double* source,
-        double* destination);
+    void blurHorizontal(std::size_t width, std::size_t height, std::size_t radius,
+        const double* source, double* destination);
 
     /**
      * @brief Blurs an array vertically
@@ -77,8 +74,8 @@ private:
      * @param[in] source Source array
      * @param[out] destination Destination array
      */
-    void blurVertical(std::size_t width, std::size_t height, std::size_t radius, double* source,
-        double* destination);
+    void blurVertical(std::size_t width, std::size_t height, std::size_t radius,
+        const double* source, double* destination);
 
     /**
      * @brief Normalizes the pattern to the interval [0; 1]

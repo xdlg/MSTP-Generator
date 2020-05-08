@@ -7,29 +7,32 @@
 #include <algorithm>
 #include <cmath>
 #include <random>
+#include <thread>
 
 PatternGenerator::PatternGenerator(std::size_t width, std::size_t height)
     : width(width), height(height), size(width * height), bestScales(new Scale*[size]),
-      pattern(new double[size]), partialBlurring(new double[size]), variations(new double[size]),
-      activators(new double[size]), inhibitors(new double[size]) {
+      pattern(new double[size]), variations(new double[size]) {
     initializePattern();
 }
 
 PatternGenerator::~PatternGenerator() {
     delete[] bestScales;
     delete[] pattern;
-    delete[] partialBlurring;
-    delete[] variations;
-    delete[] activators;
-    delete[] inhibitors;
 }
 
 const double* PatternGenerator::getNextPattern() {
     if (!scales.empty()) {
+        double* activators = new double[size];
+        double* inhibitors = new double[size];
+
         for (Scale& scale : scales) {
             // Compute activator and inhibitor arrays
-            blur(width, height, scale.activatorRadius, pattern, activators);
-            blur(width, height, scale.inhibitorRadius, pattern, inhibitors);
+            std::thread inhibitorThread(&PatternGenerator::blur, this, width, height,
+                scale.inhibitorRadius, pattern, inhibitors);
+            std::thread activatorThread(&PatternGenerator::blur, this, width, height,
+                scale.activatorRadius, pattern, activators);
+            inhibitorThread.join();
+            activatorThread.join();
 
             for (size_t i = 0; i < size; i++) {
                 // Update the variation array if the variation for this element is smaller than the
@@ -43,6 +46,9 @@ const double* PatternGenerator::getNextPattern() {
                 }
             }
         }
+
+        delete[] activators;
+        delete[] inhibitors;
 
         for (size_t i = 0; i < size; i++) {
             if (variations[i] > 0) {
@@ -68,13 +74,15 @@ void PatternGenerator::initializePattern() {
 }
 
 void PatternGenerator::blur(std::size_t width, std::size_t height, std::size_t radius,
-    double* source, double* destination) {
+    const double* source, double* destination) {
+    double* partialBlurring = new double[size];
     blurHorizontal(width, height, radius, source, partialBlurring);
     blurVertical(width, height, radius, partialBlurring, destination);
+    delete[] partialBlurring;
 }
 
 void PatternGenerator::blurHorizontal(std::size_t width, std::size_t height, std::size_t radius,
-    double* source, double* destination) {
+    const double* source, double* destination) {
     for (size_t y = 0; y < height; y++) {
         double sum = 0;
         std::size_t span = radius + 1;
@@ -107,7 +115,7 @@ void PatternGenerator::blurHorizontal(std::size_t width, std::size_t height, std
 }
 
 void PatternGenerator::blurVertical(std::size_t width, std::size_t height, std::size_t radius,
-    double* source, double* destination) {
+    const double* source, double* destination) {
     for (size_t x = 0; x < width; x++) {
         double sum = 0;
         std::size_t span = radius + 1;
