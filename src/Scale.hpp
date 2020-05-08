@@ -11,14 +11,15 @@
 
 class Scale {
 public:
-    Scale(bool isEnabled, std::size_t activatorRadius, std::size_t inhibitorRadius, double speed)
+    Scale(
+        bool isEnabled, std::size_t activatorRadius, std::size_t inhibitorRadius, double increment)
         : isEnabled(isEnabled), activatorRadius(activatorRadius), inhibitorRadius(inhibitorRadius),
-          speed(speed) {}
+          increment(increment) {}
 
     bool isEnabled;
     std::size_t activatorRadius;
     std::size_t inhibitorRadius;
-    double speed;
+    double increment;
 };
 
 #endif

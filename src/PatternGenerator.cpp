@@ -10,13 +10,12 @@
 #include <thread>
 
 PatternGenerator::PatternGenerator(std::size_t width, std::size_t height)
-    : width(width), height(height), size(width * height), bestScales(new Scale*[size]),
-      pattern(new double[size]), variations(new double[size]) {
+    : width(width), height(height), size(width * height), pattern(new double[size]),
+      variations(new double[size]) {
     initializePattern();
 }
 
 PatternGenerator::~PatternGenerator() {
-    delete[] bestScales;
     delete[] pattern;
 }
 
@@ -24,6 +23,7 @@ const double* PatternGenerator::getNextPattern() {
     if (!scales.empty()) {
         double* activators = new double[size];
         double* inhibitors = new double[size];
+        double* increments = new double[size];
 
         for (Scale& scale : scales) {
             // Compute activator and inhibitor arrays
@@ -42,7 +42,7 @@ const double* PatternGenerator::getNextPattern() {
                 if ((&scale == &scales.front())
                     || (std::abs(variation) < std::abs(variations[i]))) {
                     variations[i] = variation;
-                    bestScales[i] = &scale;
+                    increments[i] = (variation > 0) ? scale.increment : -scale.increment;
                 }
             }
         }
@@ -51,12 +51,10 @@ const double* PatternGenerator::getNextPattern() {
         delete[] inhibitors;
 
         for (size_t i = 0; i < size; i++) {
-            if (variations[i] > 0) {
-                pattern[i] += bestScales[i]->speed;
-            } else {
-                pattern[i] -= bestScales[i]->speed;
-            }
+            pattern[i] += increments[i];
         }
+
+        delete[] increments;
 
         normalizePattern();
     }

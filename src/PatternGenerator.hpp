@@ -35,7 +35,6 @@ private:
     const std::size_t width;
     const std::size_t height;
     const std::size_t size;
-    Scale** bestScales;
     double* pattern;
     double* variations;
 
