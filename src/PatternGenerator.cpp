@@ -10,8 +10,7 @@
 #include <thread>
 
 PatternGenerator::PatternGenerator(std::size_t width, std::size_t height)
-    : width(width), height(height), size(width * height), pattern(new double[size]),
-      variations(new double[size]) {
+    : width(width), height(height), size(width * height), pattern(new double[size]) {
     initializePattern();
 }
 
@@ -23,6 +22,7 @@ const double* PatternGenerator::getNextPattern() {
     if (!scales.empty()) {
         double* activators = new double[size];
         double* inhibitors = new double[size];
+        double* variations = new double[size];
         double* increments = new double[size];
 
         for (Scale& scale : scales) {
@@ -47,13 +47,13 @@ const double* PatternGenerator::getNextPattern() {
             }
         }
 
-        delete[] activators;
-        delete[] inhibitors;
-
         for (size_t i = 0; i < size; i++) {
             pattern[i] += increments[i];
         }
 
+        delete[] activators;
+        delete[] inhibitors;
+        delete[] variations;
         delete[] increments;
 
         normalizePattern();
@@ -72,15 +72,17 @@ void PatternGenerator::initializePattern() {
 }
 
 void PatternGenerator::blur(std::size_t width, std::size_t height, std::size_t radius,
-    const double* source, double* destination) {
+    const double* source, double* destination) const {
     double* partialBlurring = new double[size];
+
     blurHorizontal(width, height, radius, source, partialBlurring);
     blurVertical(width, height, radius, partialBlurring, destination);
+
     delete[] partialBlurring;
 }
 
 void PatternGenerator::blurHorizontal(std::size_t width, std::size_t height, std::size_t radius,
-    const double* source, double* destination) {
+    const double* source, double* destination) const {
     for (size_t y = 0; y < height; y++) {
         double sum = 0;
         std::size_t span = radius + 1;
@@ -113,7 +115,7 @@ void PatternGenerator::blurHorizontal(std::size_t width, std::size_t height, std
 }
 
 void PatternGenerator::blurVertical(std::size_t width, std::size_t height, std::size_t radius,
-    const double* source, double* destination) {
+    const double* source, double* destination) const {
     for (size_t x = 0; x < width; x++) {
         double sum = 0;
         std::size_t span = radius + 1;

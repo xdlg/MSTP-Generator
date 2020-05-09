@@ -36,7 +36,6 @@ private:
     const std::size_t height;
     const std::size_t size;
     double* pattern;
-    double* variations;
 
     /**
      * @brief Initializes the pattern
@@ -52,7 +51,7 @@ private:
      * @param[out] destination Destination array
      */
     void blur(std::size_t width, std::size_t height, std::size_t radius, const double* source,
-        double* destination);
+        double* destination) const;
 
     /**
      * @brief Blurs an array horizontally
@@ -63,7 +62,7 @@ private:
      * @param[out] destination Destination array
      */
     void blurHorizontal(std::size_t width, std::size_t height, std::size_t radius,
-        const double* source, double* destination);
+        const double* source, double* destination) const;
 
     /**
      * @brief Blurs an array vertically
@@ -74,7 +73,7 @@ private:
      * @param[out] destination Destination array
      */
     void blurVertical(std::size_t width, std::size_t height, std::size_t radius,
-        const double* source, double* destination);
+        const double* source, double* destination) const;
 
     /**
      * @brief Normalizes the pattern to the interval [0; 1]
