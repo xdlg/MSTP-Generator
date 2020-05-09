@@ -4,6 +4,7 @@
  */
 
 #include "Image.hpp"
+#include "InputReader.hpp"
 #include "PatternGenerator.hpp"
 #include "Scale.hpp"
 #include "VideoEncoder.hpp"
@@ -24,6 +25,8 @@ int main(int argc, char** argv) {
         std::cerr << "Cannot open encoder\n";
         return -1;
     }
+
+    InputReader inputReader("../input.csv");
 
     PatternGenerator patternGenerator(width, height);
     Scale scale1(true, 100, 200, 0.05);

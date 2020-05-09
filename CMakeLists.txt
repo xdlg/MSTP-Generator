@@ -21,6 +21,7 @@ include_directories(${PROJECT_SOURCE_DIR}/src)
 add_executable(${PROJECT_NAME}
     src/main.cpp
     src/Image.cpp
+    src/InputReader.cpp
     src/PatternGenerator.cpp
     src/VideoEncoder.cpp
 )
