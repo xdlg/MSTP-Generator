@@ -13,9 +13,6 @@
 
 class PatternGenerator {
 public:
-    /** @brief Scales used for generating the pattern */
-    std::vector<Scale> scales;
-
     /**
      * @brief Basic constructor
      * @param[in] width Generated pattern width
@@ -27,9 +24,10 @@ public:
 
     /**
      * @brief Updates a pattern
+     * @param[in] scales Scales used for generating the pattern
      * @return Pattern data of size width * height on the interval [0;1]
      */
-    const double* getNextPattern();
+    const double* getNextPattern(std::vector<Scale> scales);
 
 private:
     const std::size_t width;

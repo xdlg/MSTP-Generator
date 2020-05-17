@@ -18,7 +18,7 @@ PatternGenerator::~PatternGenerator() {
     delete[] pattern;
 }
 
-const double* PatternGenerator::getNextPattern() {
+const double* PatternGenerator::getNextPattern(std::vector<Scale> scales) {
     if (!scales.empty()) {
         double* activators = new double[size];
         double* inhibitors = new double[size];

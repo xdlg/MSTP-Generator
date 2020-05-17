@@ -11,6 +11,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
+#include <vector>
 
 int main(int argc, char** argv) {
     std::size_t width = 800;
@@ -26,39 +27,35 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    InputReader inputReader("../input.csv");
-
     PatternGenerator patternGenerator(width, height);
-    Scale scale1(true, 100, 200, 0.05);
-    patternGenerator.scales.push_back(scale1);
-    Scale scale2(true, 50, 100, 0.04);
-    patternGenerator.scales.push_back(scale2);
-    Scale scale3(true, 25, 50, 0.03);
-    patternGenerator.scales.push_back(scale3);
-    Scale scale4(true, 12, 25, 0.02);
-    patternGenerator.scales.push_back(scale4);
-    Scale scale5(true, 6, 12, 0.01);
-    patternGenerator.scales.push_back(scale5);
-
+    InputReader inputReader("../input.csv");
     Image image(width, height);
-    std::size_t maxTimestamp = 100;
+    std::size_t timestamp = 0;
 
-    for (std::size_t t = 0; t < maxTimestamp; t++) {
-        std::cout << "Generating frame " << std::to_string(t + 1) << "/"
-                  << std::to_string(maxTimestamp) << "..." << std::endl;
+    while (true) {
+        std::cout << "Generating frame " << std::to_string(timestamp) << "..." << std::endl;
 
-        const double* pattern = patternGenerator.getNextPattern();
+        std::vector<Scale> scales = inputReader.getNextScales();
+        if (scales.empty()) {
+            break;
+        }
+
+        const double* pattern = patternGenerator.getNextPattern(scales);
         image.colorMapPattern(pattern);
 
-        ret = encoder.encodeRgbData(image.getData(), t);
+        ret = encoder.encodeRgbData(image.getData(), timestamp);
         if (ret < 0) {
             std::cerr << "Cannot encode data\n";
             encoder.close();
             std::abort();
         }
+
+        timestamp++;
     }
 
     encoder.close();
+
+    std::cout << "Done\n";
 
     return 0;
 }
