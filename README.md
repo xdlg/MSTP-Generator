@@ -11,11 +11,11 @@ This project is a C++ implementation of a multi-scale Turing patterns generator 
 ![](https://github.com/xdlg/MSTP-Generator/blob/master/img/sample2.png)
 
 
-## Examples
+# Examples
 
 This section explores how the algorithm parameters influence the generated images.
 
-# One scale
+## One scale
 
 A pattern based on a single scale seems to always end up stabilizing. It reaches a stable form quicker if the increment is larger. In general, the increment can be seen as the evolution speed of a scale.
 

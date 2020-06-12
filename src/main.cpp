@@ -14,10 +14,10 @@
 #include <vector>
 
 int main(int argc, char** argv) {
-    std::size_t width = 800;
-    std::size_t height = 800;
-    int bitrate = 400000;
-    int framerate = 25;
+    std::size_t width = 1920;
+    std::size_t height = 1080;
+    int bitrate = 2500000;
+    int framerate = 30;
 
     VideoEncoder encoder("mpeg4", bitrate, width, height, framerate);
 
