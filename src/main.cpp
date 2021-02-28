@@ -14,8 +14,8 @@
 #include <vector>
 
 int main(int argc, char** argv) {
-    std::size_t width = 1920;
-    std::size_t height = 1080;
+    std::size_t width = 854;
+    std::size_t height = 480;
     int bitrate = 2500000;
     int framerate = 30;
 
