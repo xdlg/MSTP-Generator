@@ -5,6 +5,6 @@ Multi-Scale Turing Patterns Generator
 
 Conceptually, the idea is similar to that of Conway's [Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life): create an image with random pixel values, then repeatedly apply some simple rule on each pixel that changes its value based on the value of its neighbors. If the rule is chosen wisely, interesting and unexpected patterns emerge.
 
-This project is a C++ implementation of a multi-scale Turing patterns generator based on McCabe's algorithm. As the algorithm requires updating each pixel individually, and this update gets more computationally expensive whith each additional scale, my goal is to make the implementation quite efficient. I am also more interested in generating videos than static images, which is why the project uses [libav/FFmpeg](https://libav.org/). Finally, I want to understand how the different parameters of the algorithm (e.g. activator, inhibitor, number of scales) influence the generated patterns, and explore the creative possibilities given by symmetries and color palettes.
+This project is a Qt/C++ implementation of a multi-scale Turing patterns generator based on McCabe's algorithm.
 
 ![](https://github.com/xdlg/MSTP-Generator/blob/master/output/sample02.png)
